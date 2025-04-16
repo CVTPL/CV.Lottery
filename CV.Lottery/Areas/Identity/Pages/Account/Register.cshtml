@@ -1,0 +1,81 @@
+@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="container d-flex align-items-center justify-content-center min-vh-100">
+    <div class="col-12 col-sm-10 col-md-8 col-lg-5 col-xl-4">
+        <div class="card shadow rounded-4 border-0">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold mb-1">Create an Account</h2>
+                    <p class="text-muted">Sign up to get started!</p>
+                </div>
+                <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" autocomplete="off">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 px-3 mb-3" role="alert"></div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Username" class="form-control" autocomplete="username" aria-required="true" placeholder="Username" />
+                        <label asp-for="Input.Username">Username</label>
+                        <span asp-validation-for="Input.Username" class="text-danger small"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Email" class="form-control" autocomplete="email" aria-required="true" aria-describedby="emailHelp" placeholder="name@example.com" />
+                        <label asp-for="Input.Email">Email</label>
+                        <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                    </div>
+                    <div class="form-floating mb-3 position-relative">
+                        <input asp-for="Input.Password" class="form-control pe-5" autocomplete="new-password" aria-required="true" placeholder="Password" id="passwordInput" type="password" aria-describedby="passwordHelp" />
+                        <label asp-for="Input.Password">Password</label>
+                        <button type="button" class="btn btn-outline-secondary btn-sm position-absolute top-50 end-0 translate-middle-y me-2" style="z-index: 2;" onclick="togglePassword('passwordInput','togglePasswordIcon')" tabindex="-1" aria-label="Toggle password visibility">
+                            <span id="togglePasswordIcon" class="bi bi-eye"></span>
+                        </button>
+                        <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                    </div>
+                    <div class="form-floating mb-3 position-relative">
+                        <input asp-for="Input.ConfirmPassword" class="form-control pe-5" autocomplete="new-password" aria-required="true" placeholder="Confirm Password" id="confirmPasswordInput" type="password" aria-describedby="confirmPasswordHelp" />
+                        <label asp-for="Input.ConfirmPassword">Confirm Password</label>
+                        <button type="button" class="btn btn-outline-secondary btn-sm position-absolute top-50 end-0 translate-middle-y me-2" style="z-index: 2;" onclick="togglePassword('confirmPasswordInput','toggleConfirmPasswordIcon')" tabindex="-1" aria-label="Toggle confirm password visibility">
+                            <span id="toggleConfirmPasswordIcon" class="bi bi-eye"></span>
+                        </button>
+                        <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                    </div>
+                    <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary mb-3" aria-busy="false">Register</button>
+                    <div class="d-flex flex-column align-items-center">
+                        <a asp-page="./Login" class="small">Already have an account? Log in</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Reusable password toggle for all pages
+        function togglePassword(inputId, iconId) {
+            const pwdInput = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (pwdInput.type === 'password') {
+                pwdInput.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                pwdInput.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        }
+
+        // Prevent double submit and show loading state
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            var btn = document.getElementById('registerSubmit');
+            btn.disabled = true;
+            btn.setAttribute('aria-busy', 'true');
+            btn.innerHTML = 'Registering...';
+        });
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+}

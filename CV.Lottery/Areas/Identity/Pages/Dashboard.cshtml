@@ -1,0 +1,48 @@
+@page "/Dashboard"
+@model DashboardModel
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
+@inject SignInManager<IdentityUser> SignInManager
+
+@{
+    ViewData["Title"] = "Dashboard";
+    var userName = User.Identity?.Name ?? "";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<div class="container-fluid">
+    <div class="row justify-content-center align-items-center min-vh-75">
+        <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
+            <div class="card shadow rounded-4 border-0">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold mb-1">Event Details</h2>
+                    </div>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="fw-semibold">Event Name:</span>
+                            <span>@Model.EventName</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="fw-semibold">Winner Announcement Date:</span>
+                            <span>@Model.WinnerAnnouncementDate.ToString("dd MMM yyyy")</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="fw-semibold">Payment Status:</span>
+                            <span>
+                                @if (Model.PaymentStatus == "Paid") {
+                                    <span class="badge bg-success">Paid</span>
+                                } else if (Model.PaymentStatus == "Pending") {
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                } else {
+                                    <span class="badge bg-danger">Failed</span>
+                                }
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
