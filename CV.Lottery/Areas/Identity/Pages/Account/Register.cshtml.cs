@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
+using CV.Lottery.Context;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -29,13 +30,17 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly LotteryContext _lotteryContext;
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            RoleManager<IdentityRole> roleManager,
+            LotteryContext lotteryContext)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -43,6 +48,8 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _roleManager = roleManager;
+            _lotteryContext = lotteryContext;
         }
 
         /// <summary>
@@ -121,6 +128,32 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
+                // Check if username already exists (custom claim)
+                var users = _userManager.Users.ToList();
+                foreach (var u in users)
+                {
+                    var claims = await _userManager.GetClaimsAsync(u);
+                    if (claims.Any(c => c.Type == "display_username" && c.Value == Input.Username))
+                    {
+                        ModelState.AddModelError("Input.Username", "This username is already taken. Please use another name.");
+                        return Page();
+                    }
+                }
+
+                // Check if email already exists
+                var emailExists = await _userManager.FindByEmailAsync(Input.Email);
+                if (emailExists != null)
+                {
+                    ModelState.AddModelError("Input.Email", "A user with this email already exists.");
+                    return Page();
+                }
+
+                // Ensure roles exist
+                if (!await _roleManager.RoleExistsAsync("admin"))
+                    await _roleManager.CreateAsync(new IdentityRole("admin"));
+                if (!await _roleManager.RoleExistsAsync("user"))
+                    await _roleManager.CreateAsync(new IdentityRole("user"));
+
                 var user = CreateUser();
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None); // Set username to email for login
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -134,6 +167,22 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
                     {
                         await _userManager.AddClaimAsync(user, new System.Security.Claims.Claim("display_username", Input.Username));
                     }
+
+                    // Assign user role
+                    await _userManager.AddToRoleAsync(user, "user");
+
+                    // Insert into LotteryUsers with GuId, UserName, Email from AspNetUsers
+                    var lotteryUser = new CV.Lottery.Models.LotteryUsers
+                    {
+                        UserId = user.Id, // Store AspNetUsers.Id as UserId
+                        UserName = Input.Username, // Or user.UserName if you prefer
+                        Email = Input.Email,
+                        CreatedBy = user.Id,
+                        CreatedOn = DateTime.Now,
+                        IsActive = true
+                    };
+                    _lotteryContext.LotteryUsers.Add(lotteryUser);
+                    await _lotteryContext.SaveChangesAsync();
 
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);

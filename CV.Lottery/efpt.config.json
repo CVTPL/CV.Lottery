@@ -1,0 +1,89 @@
+﻿{
+   "CodeGenerationMode": 4,
+   "ContextClassName": "LotteryContext",
+   "ContextNamespace": null,
+   "FilterSchemas": false,
+   "IncludeConnectionString": false,
+   "ModelNamespace": null,
+   "OutputContextPath": null,
+   "OutputPath": "Context",
+   "PreserveCasingWithRegex": true,
+   "ProjectRootNamespace": "CV.Lottery",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 2,
+   "SelectedToBeGenerated": 1,
+   "T4TemplatePath": null,
+   "Tables": [
+      {
+         "Name": "[dbo].[AspNetRoleClaims]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetRoles]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetUserClaims]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetUserLogins]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetUserRoles]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetUsers]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetUserTokens]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[LotteryUsers]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[LuckyDrawMaster]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Payments]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Winner]",
+         "ObjectType": 0
+      }
+   ],
+   "UiHint": null,
+   "UncountableWords": null,
+   "UseAsyncStoredProcedureCalls": true,
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": false,
+   "UseDatabaseNamesForRoutines": true,
+   "UseDateOnlyTimeOnly": true,
+   "UseDbContextSplitting": false,
+   "UseDecimalDataAnnotationForSprocResult": true,
+   "UseFluentApiOnly": true,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": false,
+   "UseInternalAccessModifiersForSprocsAndFunctions": false,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": false,
+   "UseNoDefaultConstructor": false,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": false,
+   "UsePrefixNavigationNaming": false,
+   "UseSchemaFolders": false,
+   "UseSchemaNamespaces": false,
+   "UseSpatial": false,
+   "UseT4": false,
+   "UseT4Split": false
+}

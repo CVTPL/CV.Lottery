@@ -1,0 +1,26 @@
+.navbar.bg-primary,
+.navbar.bg-primary,
+.navbar.bg-primary .navbar-nav .nav-link.active,
+.navbar.bg-primary .navbar-brand,
+.navbar.bg-primary .navbar-toggler,
+.navbar.bg-primary .dropdown-menu {
+    background-color: #051145 !important;
+    border-color: #051145 !important;
+}
+
+.navbar.bg-primary .nav-link,
+.navbar.bg-primary .navbar-brand {
+    color: #fff !important;
+}
+
+.navbar.bg-primary .nav-link.active {
+    color: #ffd700 !important; /* Optional: highlight active link */
+}
+
+.navbar.bg-primary .navbar-toggler-icon {
+    background-image: none;
+}
+
+.navbar.bg-primary .navbar-toggler {
+    border-color: #fff !important;
+}

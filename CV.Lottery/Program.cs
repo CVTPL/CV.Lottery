@@ -1,7 +1,10 @@
 using CV.Lottery.Context;
+using CV.Lottery.Areas.Identity.Pages;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using CV.Lottery.Models;
+using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +12,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionString")));
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddDbContext<LotteryContext>(options =>
+    options.UseSqlServer((builder.Configuration.GetConnectionString("ConnectionString"))));
+
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddIdentityCore<IdentityUser>(options =>
 {
@@ -27,6 +35,13 @@ builder.Services.AddIdentityCore<IdentityUser>(options =>
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+// Seed admin user
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await AdminUserSeeder.SeedAdminUserAsync(services);
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

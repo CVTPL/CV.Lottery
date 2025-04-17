@@ -13,7 +13,7 @@
                     <h2 class="fw-bold mb-1">Log in</h2>
                     <p class="text-muted">Welcome back! Please enter your credentials.</p>
                 </div>
-                <form id="account" method="post" autocomplete="off">
+                <form id="loginForm" method="post" autocomplete="off">
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
                     <div class="form-floating mb-3">
                         <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
@@ -34,7 +34,7 @@
                             @Html.DisplayNameFor(m => m.Input.RememberMe)
                         </label>
                     </div>
-                    <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary mb-3">Log in</button>
+                    <button id="loginSubmit" type="submit" class="w-100 btn btn-lg btn-primary mb-3">Log in</button>
                     <div class="d-flex flex-column align-items-center">
                         <a id="forgot-password" asp-page="./ForgotPassword" class="small mb-2">Forgot your password?</a>
                         <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="small">Register as a new user</a>
@@ -61,6 +61,27 @@
                 icon.classList.add('bi-eye');
             }
         }
+        function validateLoginForm() {
+            var form = document.getElementById('loginForm');
+            var submitBtn = document.getElementById('loginSubmit');
+            var valid = true;
+            var inputs = form.querySelectorAll('input[aria-required="true"]');
+            inputs.forEach(function(input) {
+                if (!input.value.trim()) {
+                    valid = false;
+                }
+            });
+            // Only check for client-side validation errors
+            var errors = form.querySelectorAll('.field-validation-error');
+            if (errors.length > 0) valid = false;
+            submitBtn.disabled = !valid;
+        }
+        document.getElementById('loginForm').addEventListener('input', validateLoginForm);
+        document.getElementById('loginForm').addEventListener('change', validateLoginForm);
+        window.addEventListener('DOMContentLoaded', validateLoginForm);
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            setTimeout(validateLoginForm, 100);
+        });
     </script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 }

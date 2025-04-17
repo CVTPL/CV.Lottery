@@ -41,7 +41,7 @@
                         </button>
                         <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
                     </div>
-                    <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary mb-3" aria-busy="false">Register</button>
+                    <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary mb-3" disabled>Register</button>
                     <div class="d-flex flex-column align-items-center">
                         <a asp-page="./Login" class="small">Already have an account? Log in</a>
                     </div>
@@ -68,6 +68,40 @@
                 icon.classList.add('bi-eye');
             }
         }
+
+        function validateRegisterForm() {
+            var form = document.getElementById('registerForm');
+            var submitBtn = document.getElementById('registerSubmit');
+            var valid = true;
+            var inputs = form.querySelectorAll('input');
+            var pwd = document.getElementById('passwordInput');
+            var confirmPwd = document.getElementById('confirmPasswordInput');
+            inputs.forEach(function(input) {
+                if (input.hasAttribute('aria-required') && !input.value.trim()) {
+                    valid = false;
+                }
+            });
+            // Check if passwords match
+            if (pwd && confirmPwd && pwd.value !== confirmPwd.value) {
+                valid = false;
+            }
+            // Check for validation errors
+            var errors = form.querySelectorAll('.text-danger:not(:empty)');
+            if (errors.length > 0) valid = false;
+            submitBtn.disabled = !valid;
+        }
+        document.getElementById('registerForm').addEventListener('input', function(e) {
+            // If password changes, clear confirm password
+            if (e.target && e.target.id === 'passwordInput') {
+                var confirmInput = document.getElementById('confirmPasswordInput');
+                if (confirmInput) {
+                    confirmInput.value = '';
+                }
+            }
+            validateRegisterForm();
+        });
+        document.getElementById('registerForm').addEventListener('change', validateRegisterForm);
+        window.addEventListener('DOMContentLoaded', validateRegisterForm);
 
         // Prevent double submit and show loading state
         document.getElementById('registerForm').addEventListener('submit', function(e) {

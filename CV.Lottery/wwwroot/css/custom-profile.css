@@ -1,0 +1,16 @@
+.dropdown-menu[aria-labelledby="profileDropdown"] {
+    background-color: #051145 !important;
+    color: #fff !important;
+    border: none !important;
+    box-shadow: 0 0.5rem 1rem rgba(5, 17, 69, 0.2);
+}
+.dropdown-menu[aria-labelledby="profileDropdown"] .fw-semibold,
+.dropdown-menu[aria-labelledby="profileDropdown"] .text-muted {
+    color: #fff !important;
+}
+.dropdown-menu[aria-labelledby="profileDropdown"] .text-muted.small {
+    color: #b0b6c8 !important;
+}
+.dropdown-menu[aria-labelledby="profileDropdown"] .bi-person-circle {
+    color: #ffd700 !important; /* Gold icon for contrast */
+}

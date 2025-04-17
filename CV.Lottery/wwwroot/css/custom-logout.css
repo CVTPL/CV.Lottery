@@ -1,0 +1,14 @@
+.dropdown-menu[aria-labelledby="profileDropdown"] .btn-outline-danger {
+    color: #fff !important;
+    background-color: #d9534f !important;
+    border-color: #d9534f !important;
+    font-weight: 600;
+    transition: background 0.2s, color 0.2s;
+}
+.dropdown-menu[aria-labelledby="profileDropdown"] .btn-outline-danger:hover,
+.dropdown-menu[aria-labelledby="profileDropdown"] .btn-outline-danger:focus {
+    background-color: #c9302c !important;
+    border-color: #c9302c !important;
+    color: #fff !important;
+    box-shadow: 0 2px 8px rgba(217,83,79,0.15);
+}

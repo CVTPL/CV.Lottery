@@ -1,0 +1,62 @@
+@page "/WinnerSelection"
+@model CV.Lottery.Areas.Identity.Pages.WinnerSelectionModel
+@{
+    ViewData["Title"] = "Draw the Winner!";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var participantsJson = Newtonsoft.Json.JsonConvert.SerializeObject(Model.PaidUsers);
+}
+<link rel="stylesheet" href="/css/winner-spinner.css" />
+<script src="/js/winner-spinner.js"></script>
+<script src="/js/winner-fireworks.js"></script>
+<div class="container py-5" style="max-height: 80vh; overflow-y: auto;">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+            <div class="card shadow-lg rounded-4 border-0">
+                <div class="card-body p-4 position-relative">
+                    <div class="glow-header text-center mb-3">Draw the Winner!</div>
+                    <div id="countdown-timer" class="countdown-timer text-center"></div>
+                    <div class="participants-counter">Participants: @Model.PaidUsers.Count</div>
+                    <div class="spinner-container my-4">
+                        <div class="spinner-list mx-auto" style="height: 220px; overflow-y: auto;">
+                            <div id="spinner-names" class="spinner-names">
+                                @foreach (var user in Model.PaidUsers)
+                                {
+                                    <div class="spinner-name">@user.UserName <span class="text-secondary small">(@user.Email)</span></div>
+                                }
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div style="flex: 1 1 auto;"></div>
+                            <button id="draw-btn" class="btn btn-lg btn-warning px-5 fw-bold" style="margin-left:auto;" onclick="startDraw(participantsData)"><i class="bi bi-play-circle"></i> Draw Now</button>
+                        </div>
+                        <div id="confetti" class="confetti"></div>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <div id="winner-panel" class="winner-panel" style="display:none;">
+                            <img id="winner-avatar" class="winner-avatar" src="" style="display:none;" />
+                            <div class="d-flex">
+                                <div class="winner-info">
+                                    <div class="fs-4 fw-bold mb-1" id="winner-name"></div>
+                                    <div class="text-secondary" id="winner-email"></div>
+                                    <div class="text-muted small mt-2">Draw #@Model.DrawNumber • @DateTime.Now.ToString("MMM dd, yyyy")</div>
+                                </div>
+                                <div class="winner-actions">
+                                    <button class="share-btn" onclick="shareWin()">🎉 Share Your Win</button>
+                                    <form method="post" asp-page-handler="SaveWinner" class="d-inline">
+                                        <input type="hidden" name="WinnerUserId" id="WinnerUserIdInput" />
+                                        <button type="submit" class="btn btn-success ms-3">Save Winner</button>
+                                    </form>
+                                    <button class="replay-btn" onclick="replayDraw()">Replay Draw</button>
+                                </div>
+                            </div>
+                            <div id="fireworks" class="fireworks"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var participantsData = @Html.Raw(participantsJson);
+</script>

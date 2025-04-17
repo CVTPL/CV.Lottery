@@ -8,15 +8,27 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CV.Lottery.styles.css" asp-append-version="true" />
+    <!-- Removed custom-theme.css and Google Fonts for classic Bootstrap look -->
+    <link rel="stylesheet" href="~/css/hide-scrollbar.css" />
+    <link rel="stylesheet" href="~/css/custom-primary.css" />
+    <link rel="stylesheet" href="~/css/custom-navbar.css" />
+    <link rel="stylesheet" href="~/css/custom-profile.css" />
+    <link rel="stylesheet" href="~/css/custom-logout.css" />
 </head>
 <body class="d-flex flex-column min-vh-100">
-    @await Html.PartialAsync("_Navbar")
+    @if (User.Identity != null && User.Identity.IsAuthenticated && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/login") && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/register") && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/forgotpassword") && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/forgotpasswordconfirmation"))
+    {
+        @await Html.PartialAsync("_Navbar")
+    }
     <div class="container flex-grow-1">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
-    @await Html.PartialAsync("_Footer")
+    @if (User.Identity != null && User.Identity.IsAuthenticated && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/login") && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/register") && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/forgotpassword") && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/forgotpasswordconfirmation"))
+    {
+        @await Html.PartialAsync("_Footer")
+    }
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

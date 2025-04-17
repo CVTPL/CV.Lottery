@@ -127,8 +127,12 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
                         _logger.LogWarning("User account locked out.");
                         return RedirectToPage("./Lockout");
                     }
+                    // If password is wrong
+                    ModelState.AddModelError(string.Empty, "Password is wrong.");
+                    return Page();
                 }
-                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                // If user not found
+                ModelState.AddModelError(string.Empty, "No account found with this email.");
                 return Page();
             }
 

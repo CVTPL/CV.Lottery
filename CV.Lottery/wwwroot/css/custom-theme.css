@@ -1,0 +1,124 @@
+body {
+    background-color: #051145;
+    color: #fff;
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
+}
+
+.navbar, .footer, .card, .btn-primary, .table thead, .badge.bg-primary {
+    background-color: #051145 !important;
+    color: #fff !important;
+}
+
+.btn-primary, .badge.bg-primary {
+    border-color: #051145 !important;
+}
+
+.card {
+    border-radius: 1.5rem;
+    box-shadow: 0px 8px 15px rgba(5, 17, 69, 0.18) !important;
+    background: #051145;
+    color: #fff;
+}
+
+.table th, .table td {
+    color: #fff;
+    font-size: 1rem;
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
+}
+
+.table thead th {
+    background: #051145;
+    color: #fff;
+    font-weight: 600;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #0e1a3a;
+}
+
+a, .nav-link, .navbar-brand {
+    color: #fff !important;
+    font-weight: 600;
+}
+
+a:hover, .nav-link:hover {
+    color: #a5b4fc !important;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #fff;
+}
+
+::-webkit-scrollbar-track {
+    background: #051145;
+}
+
+input:focus, select:focus, textarea:focus, button:focus {
+    border-color: #fff !important;
+    box-shadow: 0 0 0 0.2rem rgba(255,255,255,0.25) !important;
+}
+
+.btn-outline-primary {
+    color: #fff !important;
+    border-color: #fff !important;
+    font-weight: 600;
+}
+
+.btn-outline-primary:hover, .btn-outline-primary:focus {
+    background: #fff !important;
+    color: #051145 !important;
+}
+
+h1, h2, h3, h4, h5, h6, .fw-bold {
+    color: #fff;
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
+    font-weight: 700 !important;
+}
+
+.card .card-body .fw-bold, .card .card-body h3, .card .card-body h2 {
+    color: #fff;
+}
+
+.badge.bg-success {
+    background-color: #28a745 !important;
+    color: #fff;
+}
+.badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #051145 !important;
+}
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+    color: #fff;
+}
+
+.form-control, .form-label, .form-floating label {
+    color: #fff;
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
+    font-size: 1rem;
+    background: #0e1a3a;
+    border: 1px solid #fff;
+}
+
+.card .table th, .card .table td {
+    background: transparent;
+}
+
+.card .table tr {
+    border-bottom: 1px solid #23316d;
+}
+
+/* For better contrast on cards */
+.card {
+    border: 1px solid #23316d;
+}
+
+/* Responsive font size for dashboard */
+@media (max-width: 576px) {
+    .table th, .table td {
+        font-size: 0.95rem;
+    }
+    .card .card-body {
+        padding: 1.25rem;
+    }
+}
