@@ -38,10 +38,10 @@
                                 <div class="winner-info">
                                     <div class="fs-4 fw-bold mb-1" id="winner-name"></div>
                                     <div class="text-secondary" id="winner-email"></div>
-                                    <div class="text-muted small mt-2">Draw #@Model.DrawNumber • @DateTime.Now.ToString("MMM dd, yyyy")</div>
+                                    <div class="text-muted small mt-2">@DateTime.Now.ToString("MMM dd, yyyy")</div>
                                 </div>
                                 <div class="winner-actions">
-                                    <button class="share-btn" onclick="shareWin()">🎉 Share Your Win</button>
+                                    <!-- <button class="share-btn" onclick="shareWin()">🎉 Share Your Win</button> -->
                                     <form method="post" asp-page-handler="SaveWinner" class="d-inline">
                                         <input type="hidden" name="WinnerUserId" id="WinnerUserIdInput" />
                                         <button type="submit" class="btn btn-success ms-3">Save Winner</button>

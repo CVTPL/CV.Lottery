@@ -17,10 +17,10 @@ function startDraw(participantList) {
 
 function startCountdown(seconds) {
     let timer = seconds;
-    document.getElementById('countdown-timer').innerText = `Next draw in ${timer}...`;
+    document.getElementById('countdown-timer').innerText = `Start draw in ${timer}...`;
     countdownInterval = setInterval(() => {
         timer--;
-        document.getElementById('countdown-timer').innerText = `Next draw in ${timer}...`;
+        document.getElementById('countdown-timer').innerText = `Start draw in ${timer}...`;
         if (timer <= 0) {
             clearInterval(countdownInterval);
             document.getElementById('countdown-timer').innerText = '';
@@ -131,10 +131,10 @@ function startGridDraw(participantList) {
 
 function startGridCountdown(seconds) {
     let timer = seconds;
-    document.getElementById('countdown-timer').innerText = `Next draw in ${timer}...`;
+    document.getElementById('countdown-timer').innerText = `Start draw in ${timer}...`;
     countdownInterval = setInterval(() => {
         timer--;
-        document.getElementById('countdown-timer').innerText = `Next draw in ${timer}...`;
+        document.getElementById('countdown-timer').innerText = `Start draw in ${timer}...`;
         if (timer <= 0) {
             clearInterval(countdownInterval);
             document.getElementById('countdown-timer').innerText = '';

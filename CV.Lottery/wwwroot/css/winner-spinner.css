@@ -1,9 +1,12 @@
 /* Winner Spinner Custom Styles */
 .glow-header {
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: #fff;
-  text-shadow: 0 0 10px #ffd700, 0 0 20px #ff6f00, 0 0 30px #ffd700;
+  font-size: 1.35rem !important;
+  font-weight: 700;
+  color: #2c2c2c;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 8px rgba(255, 215, 0, 0.13);
+  margin-bottom: 0.7rem !important;
+  line-height: 1.2;
   animation: glow 1.5s infinite alternate;
 }
 @keyframes glow {
@@ -93,7 +96,7 @@
   justify-content: center;
   position: relative;
   width: 100%;
-  margin: 2rem auto 0 auto;
+  margin: 1rem auto 0 auto;
   word-break: break-word;
   overflow-wrap: break-word;
   opacity: 0;
@@ -252,4 +255,21 @@
   0% { transform: scale(0.8) translateY(0); opacity: 1; }
   80% { opacity: 1; }
   100% { transform: scale(1.8) translateY(-120px); opacity: 0; }
+}
+
+.container.py-5 {
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+  max-height: 92vh;
+}
+.spinner-container.my-4 {
+  margin-top: 0.7rem !important;
+  margin-bottom: 0.1rem !important;
+}
+.card.shadow-lg.rounded-4.border-0 {
+  margin-bottom: 1.2rem !important;
+}
+.winner-panel {
+  margin-top: 0.2rem !important;
+  margin-bottom: 0 !important;
 }
