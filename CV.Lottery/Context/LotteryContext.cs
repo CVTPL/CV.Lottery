@@ -149,6 +149,7 @@ public partial class LotteryContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.CreatedOn).HasColumnType("datetime");
             entity.Property(e => e.EventDate).HasColumnType("datetime");
+            entity.Property(e => e.EventName).IsUnicode(false);
             entity.Property(e => e.UpdatedBy)
                 .HasMaxLength(250)
                 .IsUnicode(false);
@@ -159,6 +160,7 @@ public partial class LotteryContext : DbContext
         {
             entity.HasKey(e => e.PaymentId).HasName("PK__Payments__9B556A383CBA58B8");
 
+            entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CreatedBy)
                 .HasMaxLength(250)
                 .IsUnicode(false);

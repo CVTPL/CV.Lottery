@@ -17,6 +17,8 @@ public partial class LuckyDrawMaster
 
     public string UpdatedBy { get; set; }
 
+    public string EventName { get; set; }
+
     public DateTime? UpdatedOn { get; set; }
 
     public bool? IsActive { get; set; }

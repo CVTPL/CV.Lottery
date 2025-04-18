@@ -1,0 +1,79 @@
+@page
+@model PaymentModel
+@{
+    ViewData["Title"] = "Payment";
+}
+<div class="container mt-5">
+    <div class="row justify-content-center align-items-center min-vh-100">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    <h3 class="card-title mb-4 text-center fw-bold text-primary">Complete Your Payment</h3>
+                    <p class="text-muted text-center mb-4">Secure payment powered by <img src="https://stripe.com/img/v3/home/twitter.png" alt="Stripe" style="height:1.2em;vertical-align:middle;margin-left:2px;"> Stripe</p>
+                    @if (Model.PaymentSuccess)
+                    {
+                        <div class="toast align-items-center text-white bg-success border-0 show position-fixed bottom-0 end-0 m-4" id="payment-toast" role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 1055; min-width: 300px;">
+                            <div class="d-flex">
+                                <div class="toast-body">
+                                    <strong>Payment successful!</strong> Thank you.<br />
+                                    Redirecting to login...
+                                </div>
+                            </div>
+                        </div>
+                        <script>
+                            setTimeout(function() {
+                                window.location = '/Identity/Account/Login';
+                            }, 3000);
+                        </script>
+                    }
+                    else if (Model.PaymentFailed && Model.AttemptCount >= 3)
+                    {
+                        <div class="toast align-items-center text-white bg-danger border-0 show position-fixed bottom-0 end-0 m-4" id="payment-toast" role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 1055; min-width: 300px;">
+                            <div class="d-flex">
+                                <div class="toast-body">
+                                    <strong>Maximum attempts reached.</strong> Redirecting to login...
+                                </div>
+                            </div>
+                        </div>
+                        <script>
+                            setTimeout(function() {
+                                window.location = '/Identity/Account/Login';
+                            }, 3000);
+                        </script>
+                    }
+                    else
+                    {
+                        <form id="payment-form" method="post" autocomplete="off">
+                            <input type="hidden" id="user-id" value="@Model.UserId" />
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Card Details</label>
+                                <div id="card-element" class="form-control p-2 border border-2 rounded-3" style="min-height:48px;"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="payment-amount" class="form-label fw-semibold">Amount (₹)</label>
+                                <input type="number" id="payment-amount" name="payment-amount" class="form-control" value="500" min="1" step="0.01" required disabled />
+                            </div>
+                            <div id="card-errors" class="text-danger small mb-3"></div>
+                            <button id="submit-payment" class="btn btn-primary w-100 py-2 fw-bold" type="submit" disabled>
+                                <i class="bi bi-credit-card-2-front me-2"></i>Pay Now
+                            </button>
+                        </form>
+                        @if (Model.PaymentFailed)
+                        {
+                            <div class="alert alert-danger mt-3 text-center">Payment failed. Please try again. Attempt @Model.AttemptCount of 3.</div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        #card-element.StripeElement--focus { box-shadow: 0 0 0 2px #0d6efd33; border-color: #0d6efd; }
+        #card-element { background: #f8f9fa; transition: box-shadow 0.2s; }
+    </style>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="~/js/payment.js"></script>
+}

@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;
 using System.Linq;
+using CV.Lottery.Models;
+using CV.Lottery.Context;
 
 namespace CV.Lottery.Areas.Identity.Pages
 {
@@ -14,12 +16,14 @@ namespace CV.Lottery.Areas.Identity.Pages
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly LotteryContext _lotteryContext;
 
-        public DashboardModel(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IHttpContextAccessor httpContextAccessor)
+        public DashboardModel(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IHttpContextAccessor httpContextAccessor, LotteryContext lotteryContext)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _httpContextAccessor = httpContextAccessor;
+            _lotteryContext = lotteryContext;
         }
 
         public string EventName { get; set; }
@@ -30,6 +34,9 @@ namespace CV.Lottery.Areas.Identity.Pages
         // Admin view
         public List<EventSummary> AllEvents { get; set; } = new List<EventSummary>();
         public bool IsAdmin { get; set; }
+        public int PageNumber { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+        public int TotalPages { get; set; }
 
         public class EventSummary
         {
@@ -38,9 +45,21 @@ namespace CV.Lottery.Areas.Identity.Pages
             public DateTime WinnerAnnouncementDate { get; set; }
             public string PaymentStatus { get; set; }
             public decimal Amount { get; set; }
+            public int UserId { get; set; }
         }
 
-        public async Task OnGetAsync()
+        public class PaymentDetail
+        {
+            public string PaymentStatus { get; set; }
+            public decimal Amount { get; set; }
+            public string CardLast4 { get; set; }
+            public string TransactionId { get; set; }
+            public DateTime? PaidOn { get; set; }
+        }
+
+        public PaymentDetail UserPaymentDetail { get; set; }
+
+        public async Task OnGetAsync(int pageNumber = 1)
         {
             var user = await _userManager.GetUserAsync(User);
             var roles = await _userManager.GetRolesAsync(user);
@@ -48,24 +67,95 @@ namespace CV.Lottery.Areas.Identity.Pages
 
             if (IsAdmin)
             {
-                // TODO: Replace with real data fetching for all events and payments
-                AllEvents = new List<EventSummary>
-                {
-                    new EventSummary { UserName = "Joy Patel", EventName = "Spring Lottery 2025", WinnerAnnouncementDate = new DateTime(2025, 5, 1), PaymentStatus = "Paid", Amount = 500 },
-                    new EventSummary { UserName = "Alex Smith", EventName = "Winter Raffle 2024", WinnerAnnouncementDate = new DateTime(2024, 12, 15), PaymentStatus = "Pending", Amount = 250 },
-                    new EventSummary { UserName = "Sara Lee", EventName = "Summer Bonanza", WinnerAnnouncementDate = new DateTime(2025, 7, 10), PaymentStatus = "Failed", Amount = 300 }
-                };
+                // Fetch the latest active LuckyDrawMaster event for event name/date
+                var luckyDraw = _lotteryContext.LuckyDrawMaster
+                    .Where(e => e.IsActive == true)
+                    .OrderByDescending(e => e.EventDate)
+                    .FirstOrDefault();
+                string eventName = luckyDraw != null ? (!string.IsNullOrEmpty(luckyDraw.EventName) ? luckyDraw.EventName : $"Lucky Draw #{luckyDraw.Id}") : "No Active Event";
+                DateTime winnerAnnouncementDate = luckyDraw?.EventDate ?? DateTime.Now;
+                // Fetch all users and their latest payment (with payment amount and status from Payments table)
+                var users = _lotteryContext.LotteryUsers
+                    .Select(u => new {
+                        User = u,
+                        LatestPayment = u.Payments.OrderByDescending(p => p.CreatedOn).FirstOrDefault()
+                    })
+                    .ToList();
+                var allEvents = users
+                    .Select(x => new EventSummary
+                    {
+                        UserName = x.User.UserName,
+                        EventName = eventName,
+                        WinnerAnnouncementDate = winnerAnnouncementDate,
+                        PaymentStatus = x.LatestPayment != null && !string.IsNullOrEmpty(x.LatestPayment.PaymentStatus) ? x.LatestPayment.PaymentStatus : "Not Paid",
+                        Amount = (x.LatestPayment != null && x.LatestPayment.Amount != null) ? x.LatestPayment.Amount : 0,
+                        UserId = x.User.Id
+                    })
+                    .OrderByDescending(e => e.UserId)
+                    .ToList();
+
+                PageNumber = pageNumber;
+                PageSize = 10;
+                TotalPages = (int)Math.Ceiling(allEvents.Count / (double)PageSize);
+                AllEvents = allEvents.Skip((PageNumber - 1) * PageSize).Take(PageSize).ToList();
             }
             else
             {
-                // TODO: Replace with real data fetching for current user
-                EventName = "Spring Lottery 2025";
-                WinnerAnnouncementDate = new DateTime(2025, 5, 1);
-                PaymentStatus = "Paid";
+                // Fetch payment details for the logged in user
+                var aspUser = await _userManager.GetUserAsync(User);
+                var lotteryUser = _lotteryContext.LotteryUsers.FirstOrDefault(u => u.UserId == aspUser.Id);
+                // Fetch the latest active LuckyDrawMaster event
+                var luckyDraw = _lotteryContext.LuckyDrawMaster
+                    .Where(e => e.IsActive == true)
+                    .OrderByDescending(e => e.EventDate)
+                    .FirstOrDefault();
+                if (lotteryUser != null)
+                {
+                    var payment = _lotteryContext.Payments
+                        .Where(p => p.UsersId == lotteryUser.Id)
+                        .OrderByDescending(p => p.CreatedOn)
+                        .AsEnumerable()
+                        .FirstOrDefault();
+
+                    UserPaymentDetail = new PaymentDetail
+                    {
+                        PaymentStatus = (payment != null && !string.IsNullOrWhiteSpace(payment.PaymentStatus)) ? payment.PaymentStatus : "Not Paid",
+                        Amount = (payment != null && payment.Amount != null) ? payment.Amount : 0,
+                        CardLast4 = (payment != null && !string.IsNullOrEmpty(payment.Transaction) && payment.Transaction.Length > 4)
+                            ? payment.Transaction.Substring(payment.Transaction.Length - 4)
+                            : "N/A",
+                        TransactionId = (payment != null && !string.IsNullOrEmpty(payment.Transaction)) ? payment.Transaction : "-",
+                        PaidOn = payment != null && payment.CreatedOn.HasValue ? payment.CreatedOn : null
+                    };
+                }
+                else
+                {
+                    UserPaymentDetail = new PaymentDetail
+                    {
+                        PaymentStatus = "Not Paid",
+                        Amount = 0,
+                        CardLast4 = "N/A",
+                        TransactionId = "-",
+                        PaidOn = null
+                    };
+                }
+
+                // Set event details dynamically from LuckyDrawMaster
+                if (luckyDraw != null)
+                {
+                    EventName = !string.IsNullOrEmpty(luckyDraw.EventName) ? luckyDraw.EventName : $"Lucky Draw #{luckyDraw.Id}";
+                    WinnerAnnouncementDate = luckyDraw.EventDate ?? DateTime.Now;
+                }
+                else
+                {
+                    EventName = "No Active Event";
+                    WinnerAnnouncementDate = DateTime.Now;
+                }
+                PaymentStatus = UserPaymentDetail.PaymentStatus;
                 // Set winner name based on whether event is over
                 if (WinnerAnnouncementDate <= DateTime.Now)
                 {
-                    WinnerName = "Joy Patel"; // TODO: Replace with real winner
+                    WinnerName = "--"; // You can replace with logic to fetch real winner
                 }
                 else
                 {

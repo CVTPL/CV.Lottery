@@ -34,6 +34,14 @@ builder.Services.AddIdentityCore<IdentityUser>(options =>
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// Add session services
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 var app = builder.Build();
 
 // Seed admin user
@@ -54,6 +62,9 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
+// Add session middleware
+app.UseSession();
 
 app.UseAuthentication();
 app.UseAuthorization();
