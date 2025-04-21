@@ -26,6 +26,7 @@ namespace CV.Lottery.Areas.Identity.Pages
         public int DrawNumber { get; set; } = 17; // Example, update as needed
         public bool WinnerDeclared { get; set; }
         public string WinnerName { get; set; }
+        public bool WinnerSaved { get; set; }
 
         public class PaidUserDto
         {
@@ -34,7 +35,7 @@ namespace CV.Lottery.Areas.Identity.Pages
             public string Email { get; set; }
         }
 
-        public async Task OnGetAsync()
+        public async Task OnGetAsync(bool winnerSaved = false)
         {
             // Fetch paid payments and join with LotteryUsers to get user details
             PaidUsers = (from p in _lotteryContext.Payments
@@ -46,6 +47,7 @@ namespace CV.Lottery.Areas.Identity.Pages
                              UserName = u.UserName,
                              Email = u.Email
                          }).ToList();
+            WinnerSaved = winnerSaved;
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -83,9 +85,10 @@ namespace CV.Lottery.Areas.Identity.Pages
                     await _lotteryContext.SaveChangesAsync();
                     WinnerDeclared = true;
                     WinnerName = winnerEntity.UsersId.ToString();
+                    WinnerSaved = true;
                 }
             }
-            return RedirectToPage();
+            return RedirectToPage(new { winnerSaved = true });
         }
     }
 }

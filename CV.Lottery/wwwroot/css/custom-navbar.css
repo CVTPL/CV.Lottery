@@ -17,10 +17,6 @@
     color: #ffd700 !important; /* Optional: highlight active link */
 }
 
-.navbar.bg-primary .navbar-toggler-icon {
-    background-image: none;
-}
-
 .navbar.bg-primary .navbar-toggler {
     border-color: #fff !important;
 }
