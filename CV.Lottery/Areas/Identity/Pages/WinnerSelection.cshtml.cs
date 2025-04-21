@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using CV.Lottery.Models;
 using CV.Lottery.Context;
 
 namespace CV.Lottery.Areas.Identity.Pages
 {
+    [Authorize(Roles = "admin")]
     public class WinnerSelectionModel : PageModel
     {
         private readonly UserManager<IdentityUser> _userManager;
