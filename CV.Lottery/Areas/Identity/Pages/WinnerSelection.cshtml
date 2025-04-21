@@ -21,7 +21,7 @@
                             <div id="spinner-names" class="spinner-names">
                                 @foreach (var user in Model.PaidUsers)
                                 {
-                                    <div class="spinner-name">@user.UserName <span class="text-secondary small">(@user.Email)</span></div>
+                                    <div class="spinner-name">@user.UserName</div>
                                 }
                             </div>
                         </div>
@@ -38,7 +38,6 @@
                                 <div class="winner-info">
                                     <div class="fs-4 fw-bold mb-1" id="winner-name"></div>
                                     <div class="text-secondary" id="winner-email"></div>
-                                    <div class="text-muted small mt-2">@DateTime.Now.ToString("MMM dd, yyyy")</div>
                                 </div>
                                 <div class="winner-actions">
                                     <!-- <button class="share-btn" onclick="shareWin()">🎉 Share Your Win</button> -->

@@ -44,7 +44,7 @@ function startSpinner() {
         let names = [];
         for (let i = 0; i < displayCount; i++) {
             let idx = (currentIndex + i) % participants.length;
-            names.push(`<div class='spinner-name${i === activeIdx ? ' active' : ''}' data-user-idx='${idx}'>${participants[idx].UserName} <span class='text-secondary small'>(${participants[idx].Email})</span></div>`);
+            names.push(`<div class='spinner-name${i === activeIdx ? ' active' : ''}' data-user-idx='${idx}'>${participants[idx].UserName}</div>`);
         }
         spinnerList.innerHTML = names.join('');
         currentIndex = (currentIndex + 1) % participants.length;

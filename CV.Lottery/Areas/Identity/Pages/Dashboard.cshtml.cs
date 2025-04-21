@@ -63,11 +63,33 @@ namespace CV.Lottery.Areas.Identity.Pages
 
         public PaymentDetail UserPaymentDetail { get; set; }
 
-        public async Task OnGetAsync(int pageNumber = 1)
+        public async Task<IActionResult> OnGetAsync(int pageNumber = 1)
         {
             var user = await _userManager.GetUserAsync(User);
             var roles = await _userManager.GetRolesAsync(user);
             IsAdmin = roles.Contains("admin");
+
+            if (!IsAdmin && roles.Contains("user"))
+            {
+                var lotteryUser = _lotteryContext.LotteryUsers.FirstOrDefault(u => u.UserId == user.Id);
+                if (lotteryUser != null)
+                {
+                    var latestPayment = _lotteryContext.Payments
+                        .Where(p => p.UsersId == lotteryUser.Id)
+                        .OrderByDescending(p => p.PaymentId)
+                        .FirstOrDefault();
+                    if (latestPayment == null || latestPayment.PaymentStatus != "Paid")
+                    {
+                        // Not paid, redirect to payment page
+                        return RedirectToPage("/Account/Payment", new { userId = lotteryUser.UserId });
+                    }
+                }
+                else
+                {
+                    // No lottery user, redirect to payment
+                    return RedirectToPage("/Account/Payment");
+                }
+            }
 
             if (IsAdmin)
             {
@@ -175,6 +197,7 @@ namespace CV.Lottery.Areas.Identity.Pages
                     WinnerName = string.Empty;
                 }
             }
+            return Page();
         }
     }
 }

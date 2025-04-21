@@ -21,11 +21,13 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly CV.Lottery.Context.LotteryContext _lotteryContext;
 
-        public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger, CV.Lottery.Context.LotteryContext lotteryContext)
         {
             _signInManager = signInManager;
             _logger = logger;
+            _lotteryContext = lotteryContext;
         }
 
         /// <summary>
@@ -112,6 +114,30 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
                 var user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
                 if (user != null)
                 {
+                    // Check payment status for user role
+                    var roles = await _signInManager.UserManager.GetRolesAsync(user);
+                    if (roles.Contains("user"))
+                    {
+                        // Find LotteryUser by ASP.NET user Id using DI context
+                        var lotteryUser = _lotteryContext.LotteryUsers.FirstOrDefault(u => u.UserId == user.Id);
+                        if (lotteryUser != null)
+                        {
+                            var latestPayment = _lotteryContext.Payments
+                                .Where(p => p.UsersId == lotteryUser.Id)
+                                .OrderByDescending(p => p.PaymentId)
+                                .FirstOrDefault();
+                            if (latestPayment == null || latestPayment.PaymentStatus != "Paid")
+                            {
+                                // Not paid, redirect to payment page
+                                return RedirectToPage("/Account/Payment", new { userId = lotteryUser.UserId });
+                            }
+                        }
+                        else
+                        {
+                            // No lottery user, redirect to payment
+                            return RedirectToPage("/Account/Payment");
+                        }
+                    }
                     var result = await _signInManager.PasswordSignInAsync(user.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                     if (result.Succeeded)
                     {
