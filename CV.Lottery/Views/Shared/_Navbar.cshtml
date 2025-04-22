@@ -15,8 +15,19 @@
 }
 @if (SignInManager.IsSignedIn(User) && User != null && User.Identity != null && User.Identity.IsAuthenticated)
 {
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4 p-2">
         <div class="container">
+            <div style="display: flex; align-items: center; gap: 24px;">
+                <img src="/Image/convention_logo-998x1024.png" alt="FeTNA Logo" width="70px">
+                <div>
+                    <div style="font-family: 'Playfair Display', serif; font-size: 32px; font-weight: bold; color: #fff;">
+                        FeTNA Convention
+                    </div>
+                    <div style="font-family: 'Montserrat', sans-serif; font-size: 14px; color: #fff;">
+                        FeTNA 38th Tamil Convention – 2025
+                    </div>
+                </div>
+            </div>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
