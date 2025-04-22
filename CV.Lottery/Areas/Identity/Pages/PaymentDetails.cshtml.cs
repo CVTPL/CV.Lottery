@@ -32,6 +32,14 @@ namespace CV.Lottery.Areas.Identity.Pages
         public int TotalPaidUsers { get; set; }
         public int TotalNotPaidUsers { get; set; }
 
+        [BindProperty(SupportsGet = true)]
+        public string SearchUserName { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public string SortColumn { get; set; }
+        [BindProperty(SupportsGet = true)]
+        public string SortDirection { get; set; } // "asc" or "desc"
+
         public async Task<IActionResult> OnGetAsync(int pageNumber = 1)
         {
             if (User == null || User.Identity == null || !User.Identity.IsAuthenticated)
@@ -59,43 +67,107 @@ namespace CV.Lottery.Areas.Identity.Pages
                 }
             }
 
+            // Search filter for admin
+            if (!string.IsNullOrWhiteSpace(SearchUserName))
+            {
+                usersWithUserRole = usersWithUserRole
+                    .Where(u => u.UserName != null && u.UserName.ToLower().Contains(SearchUserName.ToLower()))
+                    .ToList();
+            }
+
+            // Sort logic
+            if (!string.IsNullOrEmpty(SortColumn))
+            {
+                bool ascending = string.IsNullOrEmpty(SortDirection) || SortDirection.ToLower() == "asc";
+                switch (SortColumn.ToLower())
+                {
+                    case "username":
+                        usersWithUserRole = ascending
+                            ? usersWithUserRole.OrderBy(u => u.UserName).ToList()
+                            : usersWithUserRole.OrderByDescending(u => u.UserName).ToList();
+                        break;
+                    case "email":
+                        usersWithUserRole = ascending
+                            ? usersWithUserRole.OrderBy(u => u.Email).ToList()
+                            : usersWithUserRole.OrderByDescending(u => u.Email).ToList();
+                        break;
+                    // Add more columns as needed
+                    default:
+                        break;
+                }
+            }
+
+            // After sorting, project to EventSummary and apply paging/sorting to AllEvents only
             var users = usersWithUserRole
                 .Select(u => {
                     var latestPayment = _lotteryContext.Payments
                         .Where(p => p.UsersId == u.Id)
                         .OrderByDescending(p => p.CreatedOn)
                         .FirstOrDefault();
-                    return new {
-                        User = u,
-                        LatestPayment = latestPayment,
-                        PaidOn = latestPayment?.CreatedOn ?? u.CreatedOn
+                    return new DashboardModel.EventSummary
+                    {
+                        UserName = u.UserName,
+                        EventName = luckyDraw?.EventName ?? "",
+                        WinnerAnnouncementDate = luckyDraw?.EventDate ?? DateTime.MinValue,
+                        PaidOn = latestPayment?.CreatedOn ?? DateTime.MinValue,
+                        PaymentStatus = latestPayment?.PaymentStatus ?? "Not Paid",
+                        Amount = latestPayment?.Amount ?? 0,
+                        UserId = u.Id,
+                        Email = u.Email // Add Email property
                     };
                 })
                 .ToList();
 
             // Calculate summary tiles
             TotalUsers = users.Count;
-            TotalPaidUsers = users.Count(x => x.LatestPayment != null && x.LatestPayment.PaymentStatus == "Paid");
-            TotalNotPaidUsers = users.Count(x => x.LatestPayment == null || x.LatestPayment.PaymentStatus == "Not Paid" || x.LatestPayment.PaymentStatus == "Failed" || x.LatestPayment.PaymentStatus == "Pending");
+            TotalPaidUsers = users.Count(x => x.PaymentStatus == "Paid");
+            TotalNotPaidUsers = users.Count(x => x.PaymentStatus == "Not Paid" || x.PaymentStatus == "Failed" || x.PaymentStatus == "Pending");
 
-            var allEvents = users
-                .Select(x => new DashboardModel.EventSummary
+            // Apply sorting to AllEvents (the grid)
+            IEnumerable<DashboardModel.EventSummary> sortedEvents = users;
+            if (!string.IsNullOrEmpty(SortColumn))
+            {
+                bool ascending = string.IsNullOrEmpty(SortDirection) || SortDirection.ToLower() == "asc";
+                switch (SortColumn.ToLower())
                 {
-                    UserName = x.User.UserName,
-                    EventName = eventName,
-                    WinnerAnnouncementDate = winnerAnnouncementDate ?? DateTime.Now,
-                    PaymentStatus = x.LatestPayment != null && !string.IsNullOrEmpty(x.LatestPayment.PaymentStatus) ? x.LatestPayment.PaymentStatus : "Not Paid",
-                    Amount = (x.LatestPayment != null) ? x.LatestPayment.Amount : 0,
-                    UserId = x.User.Id,
-                    PaidOn = x.PaidOn ?? DateTime.MinValue
-                })
-                .OrderByDescending(e => e.UserId)
-                .ToList();
+                    case "username":
+                        sortedEvents = ascending
+                            ? users.OrderBy(e => e.UserName)
+                            : users.OrderByDescending(e => e.UserName);
+                        break;
+                    case "email":
+                        sortedEvents = ascending
+                            ? users.OrderBy(e => e.Email)
+                            : users.OrderByDescending(e => e.Email);
+                        break;
+                    case "amount":
+                        sortedEvents = ascending
+                            ? users.OrderBy(e => e.Amount)
+                            : users.OrderByDescending(e => e.Amount);
+                        break;
+                    case "paymentstatus":
+                        sortedEvents = ascending
+                            ? users.OrderBy(e => e.PaymentStatus)
+                            : users.OrderByDescending(e => e.PaymentStatus);
+                        break;
+                    case "paidon":
+                        sortedEvents = ascending
+                            ? users.OrderBy(e => e.PaidOn)
+                            : users.OrderByDescending(e => e.PaidOn);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                sortedEvents = users.OrderByDescending(e => e.UserId);
+            }
 
-            PageNumber = pageNumber;
             int PageSize = 10;
-            TotalPages = (int)Math.Ceiling(allEvents.Count / (double)PageSize);
-            AllEvents = allEvents.Skip((PageNumber - 1) * PageSize).Take(PageSize).ToList();
+            PageNumber = pageNumber;
+            TotalPages = (int)Math.Ceiling(sortedEvents.Count() / (double)PageSize);
+            AllEvents = sortedEvents.Skip((PageNumber - 1) * PageSize).Take(PageSize).ToList();
             return Page();
         }
     }

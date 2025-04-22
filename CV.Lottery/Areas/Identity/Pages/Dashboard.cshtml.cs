@@ -58,6 +58,7 @@ namespace CV.Lottery.Areas.Identity.Pages
             public string PaymentStatus { get; set; }
             public decimal Amount { get; set; }
             public int UserId { get; set; }
+            public string Email { get; set; } // Added for PaymentDetails grid
         }
 
         public class PaymentDetail
@@ -183,7 +184,8 @@ namespace CV.Lottery.Areas.Identity.Pages
                         PaymentStatus = x.Payment != null && !string.IsNullOrEmpty(x.Payment.PaymentStatus) ? x.Payment.PaymentStatus : "Not Paid",
                         Amount = (x.Payment != null) ? x.Payment.Amount : 0,
                         UserId = x.User.Id,
-                        PaidOn = x.PaidOn ?? DateTime.MinValue
+                        PaidOn = x.PaidOn ?? DateTime.MinValue,
+                        Email = x.User.Email // Added for PaymentDetails grid
                     })
                     .OrderByDescending(e => e.UserId)
                     .ToList();
