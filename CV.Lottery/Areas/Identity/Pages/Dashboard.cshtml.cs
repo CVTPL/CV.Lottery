@@ -72,7 +72,7 @@ namespace CV.Lottery.Areas.Identity.Pages
         public class LuckyDrawEventWithWinner
         {
             public LuckyDrawMaster Event { get; set; }
-            public string WinnerName { get; set; }
+            public List<string> WinnerNames { get; set; } = new List<string>();
         }
 
         public PaymentDetail UserPaymentDetail { get; set; }
@@ -121,17 +121,15 @@ namespace CV.Lottery.Areas.Identity.Pages
                 var winnersList = _lotteryContext.Winner.ToList();
                 var lotteryUsersList = _lotteryContext.LotteryUsers.ToList();
                 LuckyDrawEventsWithWinners = events.Select(e => {
-                    var winner = winnersList.FirstOrDefault(w => w.EventId == e.Id.ToString());
-                    string winnerName = null;
-                    if (winner != null)
-                    {
-                        var winnerUser = lotteryUsersList.FirstOrDefault(u => u.Id == winner.UsersId);
-                        winnerName = winnerUser?.UserName;
-                    }
+                    var eventWinners = winnersList.Where(w => w.EventId == e.Id.ToString()).ToList();
+                    var winnerNames = eventWinners
+                        .Select(w => lotteryUsersList.FirstOrDefault(u => u.Id == w.UsersId)?.UserName)
+                        .Where(name => !string.IsNullOrEmpty(name))
+                        .ToList();
                     return new LuckyDrawEventWithWinner
                     {
                         Event = e,
-                        WinnerName = winnerName
+                        WinnerNames = winnerNames
                     };
                 }).ToList();
                 // Fetch the latest active LuckyDrawMaster event for event name/date

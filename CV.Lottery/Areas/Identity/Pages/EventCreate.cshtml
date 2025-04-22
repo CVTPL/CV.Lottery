@@ -22,11 +22,12 @@
                     </div>
                     <div class="mb-3">
                         <label asp-for="WinnerAnnouncementDate" class="form-label">Winner Announcement Date</label>
-                        <input asp-for="WinnerAnnouncementDate" class="form-control" type="date" />
+                        <input asp-for="WinnerAnnouncementDate" class="form-control" type="date" min="@DateTime.UtcNow.ToString("yyyy-MM-dd")" />
                         <span asp-validation-for="WinnerAnnouncementDate" class="text-danger"></span>
                     </div>
-                    <div class="d-flex justify-content-end">
+                    <div class="d-flex justify-content-end gap-2">
                         <button type="submit" class="btn btn-primary px-4">Save</button>
+                        <button type="button" class="btn btn-primary px-4" onclick="resetAndRedirect()">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -36,4 +37,13 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function resetAndRedirect() {
+            // Reset the form
+            var form = document.querySelector('form[method="post"]');
+            if (form) form.reset();
+            // Redirect to dashboard
+            window.location.href = "@Url.Page("/Dashboard")";
+        }
+    </script>
 }

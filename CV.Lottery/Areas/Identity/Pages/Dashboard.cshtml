@@ -71,7 +71,7 @@
                                                             <span class="badge bg-secondary">Inactive</span>
                                                         }
                                                     </td>
-                                                    <td>@(item.WinnerName ?? "-")</td>
+                                                    <td>@(item.WinnerNames != null && item.WinnerNames.Count > 0 ? string.Join(", ", item.WinnerNames) : "-")</td>
                                                     <td>
                                                         <form method="post" asp-page-handler="ToggleActive" asp-route-id="@eventItem.Id" class="d-inline">
                                                             <button type="submit" class="btn btn-sm @(eventItem.IsActive == true ? "btn-danger" : "btn-success")">

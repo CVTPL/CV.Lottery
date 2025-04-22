@@ -7,10 +7,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using CV.Lottery.Models;
 using System.Linq;
 using CV.Lottery.Context;
+using System.ComponentModel;
 
 namespace CV.Lottery.Areas.Identity.Pages
 {
-    public class EventCreateModel : PageModel
+    public class EventCreateModel : PageModel, IValidatableObject
     {
         private readonly LotteryContext _context;
         private readonly UserManager<IdentityUser> _userManager;
@@ -27,7 +28,7 @@ namespace CV.Lottery.Areas.Identity.Pages
 
         [BindProperty]
         [Required]
-        [Range(0, double.MaxValue, ErrorMessage = "Amount must be positive")]
+        [Range(1, double.MaxValue, ErrorMessage = "Amount must be at least $1")]
         public decimal Amount { get; set; }
 
         [BindProperty]
@@ -41,6 +42,14 @@ namespace CV.Lottery.Areas.Identity.Pages
             if (WinnerAnnouncementDate == default(DateTime))
             {
                 WinnerAnnouncementDate = DateTime.UtcNow.Date;
+            }
+        }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (WinnerAnnouncementDate < DateTime.UtcNow.Date)
+            {
+                yield return new ValidationResult("Winner Announcement Date must be today or a future date.", new[] { nameof(WinnerAnnouncementDate) });
             }
         }
 
