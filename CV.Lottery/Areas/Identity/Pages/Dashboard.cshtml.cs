@@ -40,6 +40,9 @@ namespace CV.Lottery.Areas.Identity.Pages
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 10;
         public int TotalPages { get; set; }
+        public int TotalPaidUsers { get; set; }
+        public int TotalNotPaidUsers { get; set; }
+        public int TotalUsers { get; set; }
 
         public class EventSummary
         {
@@ -65,7 +68,16 @@ namespace CV.Lottery.Areas.Identity.Pages
 
         public async Task<IActionResult> OnGetAsync(int pageNumber = 1)
         {
+            if (User == null || User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                // Redirect to login if user is not authenticated
+                return RedirectToPage("/Account/Login");
+            }
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToPage("/Account/Login");
+            }
             var roles = await _userManager.GetRolesAsync(user);
             IsAdmin = roles.Contains("admin");
 
@@ -109,13 +121,32 @@ namespace CV.Lottery.Areas.Identity.Pages
                     WinnerAnnouncementDate = null;
                 }
                 // Fetch all users and their latest payment (with payment amount and status from Payments table)
-                var users = _lotteryContext.LotteryUsers
-                    .Select(u => new {
-                        User = u,
-                        LatestPayment = u.Payments.OrderByDescending(p => p.CreatedOn).FirstOrDefault(),
-                        PaidOn = u.CreatedOn
+                var allLotteryUsers = _lotteryContext.LotteryUsers.ToList();
+                var usersWithUserRole = new List<CV.Lottery.Models.LotteryUsers>();
+                foreach (var lotteryUser in allLotteryUsers)
+                {
+                    var userRoles = await _userManager.GetRolesAsync(new IdentityUser { Id = lotteryUser.UserId });
+                    if (userRoles.Contains("user"))
+                    {
+                        usersWithUserRole.Add(lotteryUser);
+                    }
+                }
+
+                // Find latest payment for each user
+                var users = usersWithUserRole
+                    .Select(u => {
+                        var latestPayment = _lotteryContext.Payments
+                            .Where(p => p.UsersId == u.Id)
+                            .OrderByDescending(p => p.CreatedOn)
+                            .FirstOrDefault();
+                        return new {
+                            User = u,
+                            LatestPayment = latestPayment,
+                            PaidOn = latestPayment?.CreatedOn ?? u.CreatedOn
+                        };
                     })
                     .ToList();
+
                 var allEvents = users
                     .Select(x => new EventSummary
                     {
@@ -123,12 +154,17 @@ namespace CV.Lottery.Areas.Identity.Pages
                         EventName = EventName,
                         WinnerAnnouncementDate = WinnerAnnouncementDate ?? DateTime.Now,
                         PaymentStatus = x.LatestPayment != null && !string.IsNullOrEmpty(x.LatestPayment.PaymentStatus) ? x.LatestPayment.PaymentStatus : "Not Paid",
-                        Amount = (x.LatestPayment != null && x.LatestPayment.Amount != null) ? x.LatestPayment.Amount : 0,
+                        Amount = (x.LatestPayment != null) ? x.LatestPayment.Amount : 0,
                         UserId = x.User.Id,
-                        PaidOn = (DateTime)x.PaidOn
+                        PaidOn = x.PaidOn ?? DateTime.MinValue
                     })
                     .OrderByDescending(e => e.UserId)
                     .ToList();
+
+                // Calculate tile values
+                TotalPaidUsers = allEvents.Count(e => e.PaymentStatus == "Paid");
+                TotalNotPaidUsers = allEvents.Count(e => e.PaymentStatus == "Not Paid" || e.PaymentStatus == "Failed" || e.PaymentStatus == "Pending");
+                TotalUsers = TotalPaidUsers + TotalNotPaidUsers;
 
                 PageNumber = pageNumber;
                 PageSize = 10;

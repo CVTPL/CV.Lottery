@@ -10,47 +10,52 @@
     var displayUsername = claimsIdentity?.FindFirst("display_username")?.Value;
     var profileUsername = !string.IsNullOrEmpty(displayUsername) ? displayUsername : userName;
     var path = Context.Request.Path.ToString().ToLower();
-    bool isDashboard = path == "/dashboard";
-    bool isEvents = path.StartsWith("/eventdetails");
+    var isDashboardActive = path == "/dashboard";
+    var isPaymentDetailsActive = path == "/identity/paymentdetails";
 }
-@if (SignInManager.IsSignedIn(User))
+@if (SignInManager.IsSignedIn(User) && User != null && User.Identity != null && User.Identity.IsAuthenticated)
 {
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
-    <div class="container">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <a class="navbar-brand d-lg-none d-flex align-items-center gap-2" href="/Dashboard" style="visibility:hidden; height:0; width:0; padding:0; margin:0;"></a>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item">
-                    <a class="nav-link @(isDashboard ? "active" : "")" href="/Dashboard">Dashboard</a>
-                </li>
-                <!-- Events nav item removed for all roles -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person-circle fs-5"></i>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end shadow rounded-3 p-0" aria-labelledby="profileDropdown" style="min-width: 260px;">
-                        <li class="p-0">
-                            <div class="d-flex align-items-center px-3 pt-3 pb-2">
-                                <i class="bi bi-person-circle fs-1 text-primary me-3"></i>
-                                <div class="flex-grow-1">
-                                    <div class="fw-semibold">@profileUsername</div>
-                                    <div class="text-muted small">@userEmail</div>
-                                </div>
-                            </div>
-                            <div class="px-3 pb-2">
-                                <form method="post" asp-area="Identity" asp-page="/Account/Logout" class="w-100">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-outline-danger w-100">Logout</button>
-                                </form>
-                            </div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand d-lg-none d-flex align-items-center gap-2" href="/Dashboard" style="visibility:hidden; height:0; width:0; padding:0; margin:0;"></a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link @(isDashboardActive ? "active text-warning fw-bold" : "")" href="/Dashboard">Dashboard</a>
+                    </li>
+                    @if (User.IsInRole("admin"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @(isPaymentDetailsActive ? "active text-warning fw-bold" : "")" href="/Identity/PaymentDetails">Payment Details</a>
                         </li>
-                    </ul>
-                </li>
-            </ul>
+                    }
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle fs-5"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow rounded-3 p-0" aria-labelledby="profileDropdown" style="min-width: 260px;">
+                            <li class="p-0">
+                                <div class="d-flex align-items-center px-3 pt-3 pb-2">
+                                    <i class="bi bi-person-circle fs-1 text-primary me-3"></i>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-semibold">@profileUsername</div>
+                                        <div class="text-muted small">@userEmail</div>
+                                    </div>
+                                </div>
+                                <div class="px-3 pb-2">
+                                    <form method="post" asp-area="Identity" asp-page="/Account/Logout" class="w-100">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-danger w-100">Logout</button>
+                                    </form>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 }

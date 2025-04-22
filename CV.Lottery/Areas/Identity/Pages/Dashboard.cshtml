@@ -27,93 +27,39 @@
             {
                 <div class="col-12 p-0">
                     <div class="mb-0">
-                        <div class="row g-2 align-items-center mb-3">
-                            <div class="col-12 col-sm-auto text-center text-sm-start mb-2 mb-sm-0">
-                                <i class="bi bi-list-task fs-2 text-primary"></i>
+                        <!-- Admin dashboard: Header and Tiles only, grid removed as requested -->
+                        <div class="row g-2 align-items-center mb-4">
+                            <div class="col-12 col-lg-6 d-flex align-items-center gap-3 mb-2 mb-lg-0">
+                                <h3 class="fw-bold mb-0">Dashboard</h3>
                             </div>
-                            <div class="col-12 col-sm text-center text-sm-start mb-2 mb-sm-0">
-                                <h3 class="fw-bold mb-0">Payment Status</h3>
-                            </div>
-                            <div class="col-12 col-sm-auto text-center text-sm-end mb-2 mb-sm-0">
-                                @if (Model.WinnerAnnouncementDate.HasValue)
-                                {
-                                    <span class="d-inline-block text-primary-emphasis small fw-semibold px-3 py-2" style="background: #f2f6fc; border-radius: 6px; letter-spacing: 0.02em; min-width: 180px; text-align: center;">
-                                        Winner Announcement: <strong>@Model.WinnerAnnouncementDate.Value.ToString("dd MMM yyyy")</strong>
-                                    </span>
-                                }
-                            </div>
-                            <div class="col-12 col-sm-auto text-center text-sm-end">
-                                <a href="/WinnerSelection" class="btn btn-primary d-inline-flex align-items-center px-4 py-2 shadow-sm w-100 w-sm-auto" style="border-radius: 12px; font-weight: 600; font-size: 1.05rem;">
+                            <div class="col-12 col-lg-6 d-flex justify-content-lg-end gap-2">
+                                <a href="/WinnerSelection" class="btn btn-primary d-inline-flex align-items-center px-4 py-2 shadow-sm" style="border-radius: 12px; font-weight: 600; font-size: 1.05rem;">
                                     <i class="bi bi-trophy me-2"></i> <span class="d-inline">Select Winner</span>
+                                </a>
+                                <a href="/EventCreate" class="btn btn-success d-inline-flex align-items-center px-4 py-2 shadow-sm" style="border-radius: 12px; font-weight: 600; font-size: 1.05rem;">
+                                    <i class="bi bi-calendar-plus me-2"></i> <span class="d-inline">Add Event</span>
                                 </a>
                             </div>
                         </div>
-                        <div style="overflow-x: auto; width: 100%;">
-                            <div class="table-responsive" style="min-width:0; max-height:60vh;">
-                                <table class="table table-hover align-middle mb-0 w-100" style="min-width: 480px;">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th class="text-nowrap">User Name</th>
-                                            <th class="text-nowrap">Event Name</th>
-                                            <th class="text-end text-nowrap">Amount</th>
-                                            <th class="text-center text-nowrap">Payment Status</th>
-                                            <th class="text-center text-nowrap">Paid On</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var evt in allEvents)
-                                        {
-                                            <tr>
-                                                <td class="text-break">@evt.UserName</td>
-                                                <td class="text-break">@evt.EventName</td>
-                                                <td class="fw-semibold text-success text-end">₹@evt.Amount</td>
-                                                <td class="text-center">
-                                                    @if (evt.PaymentStatus == "Paid") {
-                                                        <span class="badge bg-success">Paid</span>
-                                                    } else if (evt.PaymentStatus == "Pending") {
-                                                        <span class="badge bg-warning text-dark">Pending</span>
-                                                    } else if (evt.PaymentStatus == "Failed") {
-                                                        <span class="badge bg-danger">Failed</span>
-                                                    } else {
-                                                        <span class="badge bg-secondary">Not Paid</span>
-                                                    }
-                                                </td>
-                                                <td class="text-center">
-                                                    @if (evt.PaidOn != null)
-                                                    {
-                                                        @evt.PaidOn.ToString("dd MMM yyyy HH:mm")
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="text-muted">-</span>
-                                                    }
-                                                </td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
+                        <div class="row mb-4 g-3 justify-content-center">
+                            <div class="col-12 col-md-4 col-lg-3">
+                                <div class="card shadow-sm border-0 rounded-4 text-center py-3 bg-white h-100">
+                                    <div class="fw-semibold text-muted mb-1">Total Users</div>
+                                    <div class="display-6 fw-bold text-primary">@Model.TotalUsers</div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="w-100 mt-2" style="overflow-x: auto;">
-                            @if (totalPages > 1)
-                            {
-                                <nav aria-label="Admin pagination" class="mb-2">
-                                    <ul class="pagination justify-content-center flex-nowrap my-1" style="min-width: 340px;">
-                                        <li class="page-item @(pageNumber == 1 ? "disabled" : "")">
-                                            <a class="page-link" href="?pageNumber=@(pageNumber - 1)" tabindex="-1">Previous</a>
-                                        </li>
-                                        @for (int i = 1; i <= totalPages; i++)
-                                        {
-                                            <li class="page-item @(i == pageNumber ? "active" : "")">
-                                                <a class="page-link" href="?pageNumber=@i">@i</a>
-                                            </li>
-                                        }
-                                        <li class="page-item @(pageNumber == totalPages ? "disabled" : "")">
-                                            <a class="page-link" href="?pageNumber=@(pageNumber + 1)">Next</a>
-                                        </li>
-                                    </ul>
-                                </nav>
-                            }
+                            <div class="col-12 col-md-4 col-lg-3">
+                                <div class="card shadow-sm border-0 rounded-4 text-center py-3 bg-white h-100">
+                                    <div class="fw-semibold text-muted mb-1">Total Paid</div>
+                                    <div class="display-6 fw-bold text-success">@Model.TotalPaidUsers</div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-4 col-lg-3">
+                                <div class="card shadow-sm border-0 rounded-4 text-center py-3 bg-white h-100">
+                                    <div class="fw-semibold text-muted mb-1">Not Paid</div>
+                                    <div class="display-6 fw-bold text-danger">@Model.TotalNotPaidUsers</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -1,0 +1,106 @@
+@page
+@model PaymentDetailsModel
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "admin")]
+@{
+    ViewData["Title"] = "Payment Details";
+    var pageNumber = Model.PageNumber;
+    var totalPages = Model.TotalPages;
+    var allEvents = Model.AllEvents;
+}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<main class="flex-grow-1 d-flex flex-column min-vh-100 bg-light" style="background: transparent;">
+    <div class="container-fluid flex-grow-1 d-flex flex-column justify-content-start align-items-center px-1 px-sm-3 px-md-4 py-3 py-md-4" style="padding-bottom: 24px;">
+        <div class="row w-100 justify-content-center align-items-start gy-4">
+            <div class="col-12 p-0">
+                <div class="mb-0">
+                    <div class="row g-2 align-items-center mb-3">
+                        <div class="col-auto d-flex align-items-center justify-content-center" style="height: 100%;">
+                            <i class="bi bi-list-task fs-2 text-primary align-middle" style="vertical-align: middle;"></i>
+                        </div>
+                        <div class="col text-center text-sm-start mb-2 mb-sm-0">
+                            <h3 class="fw-bold mb-0">Payment Details</h3>
+                            <div class="small mt-1">
+                                <span class="fw-semibold">Event Name:</span> <span class="text-primary">@allEvents.FirstOrDefault()?.EventName</span>
+                                &nbsp;|&nbsp;
+                                <span class="fw-semibold">Winner Announcement:</span> <span class="text-success">@allEvents.FirstOrDefault()?.WinnerAnnouncementDate.ToString("dd MMM yyyy")</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive rounded-4 shadow-sm border bg-white p-3">
+                        <table class="table table-hover align-middle mb-0 w-100" style="min-width: 480px;">
+                            <thead style="background: #e3e6f0;">
+                                <tr>
+                                    <th class="text-nowrap">User Name</th>
+                                    <th class="text-end text-nowrap">Amount ($)</th>
+                                    <th class="text-center text-nowrap">Payment Status</th>
+                                    <th class="text-center text-nowrap">Paid On</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (allEvents != null && allEvents.Count > 0)
+                                {
+                                    foreach (var evt in allEvents)
+                                    {
+                                        <tr>
+                                            <td class="text-break">@evt.UserName</td>
+                                            <td class="fw-semibold text-success text-end">$@evt.Amount</td>
+                                            <td class="text-center">
+                                                @if (evt.PaymentStatus == "Paid") {
+                                                    <span class="badge bg-success">Paid</span>
+                                                } else if (evt.PaymentStatus == "Pending") {
+                                                    <span class="badge bg-warning text-dark">Pending</span>
+                                                } else if (evt.PaymentStatus == "Failed") {
+                                                    <span class="badge bg-danger">Failed</span>
+                                                } else {
+                                                    <span class="badge bg-secondary">Not Paid</span>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                @if (evt.PaidOn != null && evt.PaidOn != DateTime.MinValue)
+                                                {
+                                                    @evt.PaidOn.ToString("dd MMM yyyy HH:mm")
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">No payment records found.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="w-100 mt-3 d-flex justify-content-center">
+                        @if (totalPages > 1)
+                        {
+                            <nav aria-label="Admin pagination" class="mb-2">
+                                <ul class="pagination justify-content-center flex-nowrap my-1" style="min-width: 340px;">
+                                    <li class="page-item @(pageNumber == 1 ? "disabled" : "")">
+                                        <a class="page-link" href="?pageNumber=@(pageNumber - 1)" tabindex="-1">Previous</a>
+                                    </li>
+                                    @for (int i = 1; i <= totalPages; i++)
+                                    {
+                                        <li class="page-item @(i == pageNumber ? "active" : "")">
+                                            <a class="page-link" href="?pageNumber=@i">@i</a>
+                                        </li>
+                                    }
+                                    <li class="page-item @(pageNumber == totalPages ? "disabled" : "")">
+                                        <a class="page-link" href="?pageNumber=@(pageNumber + 1)">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
