@@ -160,6 +160,7 @@ public partial class LotteryContext : DbContext
         modelBuilder.Entity<Payments>(entity =>
         {
             entity.HasKey(e => e.PaymentId).HasName("PK__Payments__9B556A383CBA58B8");
+            entity.Property(e => e.EventId).IsUnicode(false);
 
             entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CreatedBy)

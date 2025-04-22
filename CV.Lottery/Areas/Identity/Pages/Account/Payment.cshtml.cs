@@ -32,17 +32,19 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
             UserId = userId;
             AttemptCount = HttpContext.Session.GetInt32("PaymentAttempt") ?? 0;
 
-            // Fetch latest amount from LuckyDrawMaster and set PaymentAmount
-            var latestEvent = _lotteryContext.LuckyDrawMaster
-                .OrderByDescending(e => e.CreatedOn)
+            // Fetch latest ACTIVE event from LuckyDrawMaster and set PaymentAmount
+            var latestActiveEvent = _lotteryContext.LuckyDrawMaster
+                .Where(e => e.IsActive == true && e.EventDate >= DateTime.UtcNow.Date)
                 .FirstOrDefault();
-            if (latestEvent != null)
+            if (latestActiveEvent != null)
             {
-                PaymentAmount = latestEvent.Amount;
+                PaymentAmount = latestActiveEvent.Amount;
+                ViewData["EventId"] = latestActiveEvent.Id;
             }
             else
             {
                 PaymentAmount = 0;
+                ViewData["EventId"] = null;
             }
         }
 
@@ -90,6 +92,11 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
                 var lotteryUser = _lotteryContext.LotteryUsers.FirstOrDefault(u => u.UserId == userId);
                 if (lotteryUser != null)
                 {
+                    var latestActiveEvent = _lotteryContext.LuckyDrawMaster
+                        .Where(e => e.IsActive == true && e.EventDate >= DateTime.UtcNow.Date)
+                        .FirstOrDefault();
+                    int? eventId = latestActiveEvent?.Id;
+
                     var payment = new Payments
                     {
                         UsersId = lotteryUser.Id,
@@ -98,10 +105,11 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
                         CreatedBy = lotteryUser.Id.ToString(),
                         CreatedOn = DateTime.UtcNow,
                         IsActive = true,
+                        EventId = eventId,
                         Amount = amount
                     };
                     _lotteryContext.Payments.Add(payment);
-                    _lotteryContext.SaveChanges();
+                    await _lotteryContext.SaveChangesAsync();
                 }
                 return new JsonResult(new { redirect = Url.Page("/Account/Login") });
             }
@@ -129,6 +137,11 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
                     var lotteryUser = _lotteryContext.LotteryUsers.FirstOrDefault(u => u.UserId == userId);
                     if (lotteryUser != null)
                     {
+                        var latestActiveEvent = _lotteryContext.LuckyDrawMaster
+                            .Where(e => e.IsActive == true && e.EventDate >= DateTime.UtcNow.Date)
+                            .FirstOrDefault();
+                        int? eventId = latestActiveEvent?.Id;
+
                         var payment = new Payments
                         {
                             UsersId = lotteryUser.Id,
@@ -137,10 +150,11 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
                             CreatedBy = lotteryUser.Id.ToString(),
                             CreatedOn = DateTime.UtcNow,
                             IsActive = false,
+                            EventId = eventId,
                             Amount = amount
                         };
                         _lotteryContext.Payments.Add(payment);
-                        _lotteryContext.SaveChanges();
+                        await _lotteryContext.SaveChangesAsync();
                     }
                     return new JsonResult(new { redirect = Url.Page("/Account/Login") });
                 }

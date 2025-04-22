@@ -24,6 +24,7 @@ public partial class Payments
     public DateTime? UpdatedOn { get; set; }
 
     public bool? IsActive { get; set; }
+    public int? EventId { get; set; }
 
     public decimal Amount { get; set; }
 
