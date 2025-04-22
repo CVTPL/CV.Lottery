@@ -22,4 +22,5 @@ public partial class LuckyDrawMaster
     public DateTime? UpdatedOn { get; set; }
 
     public bool? IsActive { get; set; }
+    public decimal Amount { get; set; }
 }

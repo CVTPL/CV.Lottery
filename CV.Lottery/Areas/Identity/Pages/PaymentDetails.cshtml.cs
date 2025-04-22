@@ -28,6 +28,9 @@ namespace CV.Lottery.Areas.Identity.Pages
         public int PageNumber { get; set; }
         public int TotalPages { get; set; }
         public List<DashboardModel.EventSummary> AllEvents { get; set; }
+        public int TotalUsers { get; set; }
+        public int TotalPaidUsers { get; set; }
+        public int TotalNotPaidUsers { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int pageNumber = 1)
         {
@@ -69,6 +72,11 @@ namespace CV.Lottery.Areas.Identity.Pages
                     };
                 })
                 .ToList();
+
+            // Calculate summary tiles
+            TotalUsers = users.Count;
+            TotalPaidUsers = users.Count(x => x.LatestPayment != null && x.LatestPayment.PaymentStatus == "Paid");
+            TotalNotPaidUsers = users.Count(x => x.LatestPayment == null || x.LatestPayment.PaymentStatus == "Not Paid" || x.LatestPayment.PaymentStatus == "Failed" || x.LatestPayment.PaymentStatus == "Pending");
 
             var allEvents = users
                 .Select(x => new DashboardModel.EventSummary

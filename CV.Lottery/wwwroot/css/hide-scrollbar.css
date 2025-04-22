@@ -1,6 +1,6 @@
 /* Hide both vertical and horizontal scrollbars for all browsers */
 body {
-    overflow: hidden !important;
+    /* overflow: hidden !important; */
 }
 
 /* Optional: Hide scrollbars for all elements */

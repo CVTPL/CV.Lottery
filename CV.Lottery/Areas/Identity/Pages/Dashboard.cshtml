@@ -33,34 +33,64 @@
                                 <h3 class="fw-bold mb-0">Dashboard</h3>
                             </div>
                             <div class="col-12 col-lg-6 d-flex justify-content-lg-end gap-2">
-                                <a href="/WinnerSelection" class="btn btn-primary d-inline-flex align-items-center px-4 py-2 shadow-sm" style="border-radius: 12px; font-weight: 600; font-size: 1.05rem;">
-                                    <i class="bi bi-trophy me-2"></i> <span class="d-inline">Select Winner</span>
-                                </a>
-                                <a href="/EventCreate" class="btn btn-success d-inline-flex align-items-center px-4 py-2 shadow-sm" style="border-radius: 12px; font-weight: 600; font-size: 1.05rem;">
+                                <a href="/Identity/EventCreate" class="btn btn-success d-inline-flex align-items-center px-4 py-2 shadow-sm" style="border-radius: 12px; font-weight: 600; font-size: 1.05rem;">
                                     <i class="bi bi-calendar-plus me-2"></i> <span class="d-inline">Add Event</span>
                                 </a>
                             </div>
                         </div>
-                        <div class="row mb-4 g-3 justify-content-center">
-                            <div class="col-12 col-md-4 col-lg-3">
-                                <div class="card shadow-sm border-0 rounded-4 text-center py-3 bg-white h-100">
-                                    <div class="fw-semibold text-muted mb-1">Total Users</div>
-                                    <div class="display-6 fw-bold text-primary">@Model.TotalUsers</div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-4 col-lg-3">
-                                <div class="card shadow-sm border-0 rounded-4 text-center py-3 bg-white h-100">
-                                    <div class="fw-semibold text-muted mb-1">Total Paid</div>
-                                    <div class="display-6 fw-bold text-success">@Model.TotalPaidUsers</div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-4 col-lg-3">
-                                <div class="card shadow-sm border-0 rounded-4 text-center py-3 bg-white h-100">
-                                    <div class="fw-semibold text-muted mb-1">Not Paid</div>
-                                    <div class="display-6 fw-bold text-danger">@Model.TotalNotPaidUsers</div>
+                        <!-- Admin LuckyDrawMaster Grid -->
+                        <div class="card shadow-lg rounded-4 border-0 mb-4">
+                            <div class="card-body p-3">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Event Name</th>
+                                                <th>Event Date</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                                <th>Winner Name</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model.LuckyDrawEventsWithWinners)
+                                            {
+                                                var eventItem = item.Event;
+                                                <tr>
+                                                    <td>@eventItem.EventName</td>
+                                                    <td>@(eventItem.EventDate?.ToString("dd MMM yyyy") ?? "-")</td>
+                                                    <td>@eventItem.Amount.ToString("C")</td>
+                                                    <td>
+                                                        @if (eventItem.IsActive == true)
+                                                        {
+                                                            <span class="badge bg-success">Active</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-secondary">Inactive</span>
+                                                        }
+                                                    </td>
+                                                    <td>@(item.WinnerName ?? "-")</td>
+                                                    <td>
+                                                        <form method="post" asp-page-handler="ToggleActive" asp-route-id="@eventItem.Id" class="d-inline">
+                                                            <button type="submit" class="btn btn-sm @(eventItem.IsActive == true ? "btn-danger" : "btn-success")">
+                                                                @(eventItem.IsActive == true ? "Deactivate" : "Activate")
+                                                            </button>
+                                                        </form>
+                                                        <form method="get" action="/Identity/WinnerSelection" class="d-inline ms-2">
+                                                            <input type="hidden" name="eventId" value="@eventItem.Id" />
+                                                            <button type="submit" class="btn btn-sm btn-primary select-winner-btn" @(eventItem.IsActive != true ? "disabled data-inactive='true'" : "")>Select Winner</button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
+                        <!-- End Admin LuckyDrawMaster Grid -->
                     </div>
                 </div>
             }
@@ -177,3 +207,26 @@
         </div>
     </div>
 </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.select-winner-btn[data-inactive="true"]').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            showToast('Please activate the event first.');
+        });
+    });
+});
+function showToast(message) {
+    let toast = document.createElement('div');
+    toast.className = 'toast align-items-center text-bg-warning border-0 position-fixed bottom-0 end-0 mb-4 me-4 show';
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    toast.style.zIndex = 1080;
+    toast.style.minWidth = '260px';
+    toast.innerHTML = `<div class='d-flex'><div class='toast-body'>${message}</div><button type='button' class='btn-close btn-close-white me-2 m-auto' data-bs-dismiss='toast' aria-label='Close'></button></div>`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+</script>

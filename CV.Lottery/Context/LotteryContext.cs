@@ -144,6 +144,7 @@ public partial class LotteryContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__LuckyDra__3214EC070FDC590C");
 
+            entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CreatedBy)
                 .HasMaxLength(250)
                 .IsUnicode(false);

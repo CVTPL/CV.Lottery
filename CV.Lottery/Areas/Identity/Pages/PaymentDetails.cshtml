@@ -9,21 +9,38 @@
     var allEvents = Model.AllEvents;
 }
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-<main class="flex-grow-1 d-flex flex-column min-vh-100 bg-light" style="background: transparent;">
+<main class="flex-grow-1 d-flex flex-column min-vh-100 bg-light" style="background: transparent; min-height: 100vh;">
     <div class="container-fluid flex-grow-1 d-flex flex-column justify-content-start align-items-center px-1 px-sm-3 px-md-4 py-3 py-md-4" style="padding-bottom: 24px;">
         <div class="row w-100 justify-content-center align-items-start gy-4">
             <div class="col-12 p-0">
                 <div class="mb-0">
-                    <div class="row g-2 align-items-center mb-3">
+                    <div class="row g-2 mb-3">
                         <div class="col-auto d-flex align-items-center justify-content-center" style="height: 100%;">
                             <i class="bi bi-list-task fs-2 text-primary align-middle" style="vertical-align: middle;"></i>
                         </div>
                         <div class="col text-center text-sm-start mb-2 mb-sm-0">
                             <h3 class="fw-bold mb-0">Payment Details</h3>
                             <div class="small mt-1">
-                                <span class="fw-semibold">Event Name:</span> <span class="text-primary">@allEvents.FirstOrDefault()?.EventName</span>
-                                &nbsp;|&nbsp;
+                                <span class="fw-semibold">Event Name:</span> <span class="text-primary">@allEvents.FirstOrDefault()?.EventName</span><br />
                                 <span class="fw-semibold">Winner Announcement:</span> <span class="text-success">@allEvents.FirstOrDefault()?.WinnerAnnouncementDate.ToString("dd MMM yyyy")</span>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-2">
+                            <div class="card shadow-sm border-0 rounded-4 text-center py-3 bg-white ">
+                                <div class="fw-semibold text-muted mb-1">Total Users</div>
+                                <div class="display-6 fw-bold text-primary">@Model.TotalUsers</div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-2">
+                            <div class="card shadow-sm border-0 rounded-4 text-center py-3 bg-white ">
+                                <div class="fw-semibold text-muted mb-1">Total Paid</div>
+                                <div class="display-6 fw-bold text-success">@Model.TotalPaidUsers</div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-2">
+                            <div class="card shadow-sm border-0 rounded-4 text-center py-3 bg-white ">
+                                <div class="fw-semibold text-muted mb-1">Not Paid</div>
+                                <div class="display-6 fw-bold text-danger">@Model.TotalNotPaidUsers</div>
                             </div>
                         </div>
                     </div>
@@ -32,9 +49,9 @@
                             <thead style="background: #e3e6f0;">
                                 <tr>
                                     <th class="text-nowrap">User Name</th>
-                                    <th class="text-end text-nowrap">Amount ($)</th>
+                                    <th class="text-nowrap">Amount ($)</th>
                                     <th class="text-center text-nowrap">Payment Status</th>
-                                    <th class="text-center text-nowrap">Paid On</th>
+                                    <th class="text-nowrap">Paid On</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -44,7 +61,7 @@
                                     {
                                         <tr>
                                             <td class="text-break">@evt.UserName</td>
-                                            <td class="fw-semibold text-success text-end">$@evt.Amount</td>
+                                            <td class="fw-semibold text-success">$@evt.Amount</td>
                                             <td class="text-center">
                                                 @if (evt.PaymentStatus == "Paid") {
                                                     <span class="badge bg-success">Paid</span>
@@ -56,7 +73,7 @@
                                                     <span class="badge bg-secondary">Not Paid</span>
                                                 }
                                             </td>
-                                            <td class="text-center">
+                                            <td>
                                                 @if (evt.PaidOn != null && evt.PaidOn != DateTime.MinValue)
                                                 {
                                                     @evt.PaidOn.ToString("dd MMM yyyy HH:mm")

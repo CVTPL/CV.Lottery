@@ -19,6 +19,7 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
         public int AttemptCount { get; set; }
         [BindProperty(SupportsGet = true)]
         public string UserId { get; set; }
+        public decimal PaymentAmount { get; set; }
 
         public PaymentModel(IConfiguration config, LotteryContext lotteryContext)
         {
@@ -30,6 +31,19 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
         {
             UserId = userId;
             AttemptCount = HttpContext.Session.GetInt32("PaymentAttempt") ?? 0;
+
+            // Fetch latest amount from LuckyDrawMaster and set PaymentAmount
+            var latestEvent = _lotteryContext.LuckyDrawMaster
+                .OrderByDescending(e => e.CreatedOn)
+                .FirstOrDefault();
+            if (latestEvent != null)
+            {
+                PaymentAmount = latestEvent.Amount;
+            }
+            else
+            {
+                PaymentAmount = 0;
+            }
         }
 
         public async Task<IActionResult> OnPostAsync()

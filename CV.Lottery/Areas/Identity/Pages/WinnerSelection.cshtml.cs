@@ -25,6 +25,8 @@ namespace CV.Lottery.Areas.Identity.Pages
         public string SelectedUserId { get; set; }
         [BindProperty]
         public string WinnerUserId { get; set; }
+        [BindProperty]
+        public int EventId { get; set; }
         public int DrawNumber { get; set; } = 17; // Example, update as needed
         public bool WinnerDeclared { get; set; }
         public string WinnerName { get; set; }
@@ -70,27 +72,27 @@ namespace CV.Lottery.Areas.Identity.Pages
 
         public async Task<IActionResult> OnPostSaveWinnerAsync()
         {
-            if (!string.IsNullOrEmpty(WinnerUserId))
+            await OnGetAsync();
+            if (!string.IsNullOrEmpty(WinnerUserId) && EventId > 0)
             {
-                var winnerUser = _lotteryContext.LotteryUsers.FirstOrDefault(u => u.Id.ToString() == WinnerUserId);
-                if (winnerUser != null)
+                // Find the user
+                var lotteryUser = _lotteryContext.LotteryUsers.FirstOrDefault(u => u.Id.ToString() == WinnerUserId);
+                if (lotteryUser != null)
                 {
-                    // Save to Winner table
-                    var winnerEntity = new Winner
+                    var winner = new Winner
                     {
-                        UsersId = winnerUser.Id,
-                        CreatedBy = winnerUser.Id.ToString(),
-                        CreatedOn = DateTime.UtcNow,
-                        IsActive = true
+                        UsersId = lotteryUser.Id,
+                        EventId = EventId.ToString(),
+                        CreatedOn = DateTime.Now,
+                        IsActive = true,
+                        CreatedBy = lotteryUser.Id.ToString(),
                     };
-                    _lotteryContext.Winner.Add(winnerEntity);
-                    await _lotteryContext.SaveChangesAsync();
-                    WinnerDeclared = true;
-                    WinnerName = winnerEntity.UsersId.ToString();
+                    _lotteryContext.Winner.Add(winner);
+                    _lotteryContext.SaveChanges();
                     WinnerSaved = true;
                 }
             }
-            return RedirectToPage(new { winnerSaved = true });
+            return RedirectToPage(new { winnerSaved = WinnerSaved });
         }
     }
 }

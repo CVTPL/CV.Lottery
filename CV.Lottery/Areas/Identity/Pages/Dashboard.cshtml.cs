@@ -43,6 +43,11 @@ namespace CV.Lottery.Areas.Identity.Pages
         public int TotalPaidUsers { get; set; }
         public int TotalNotPaidUsers { get; set; }
         public int TotalUsers { get; set; }
+        public List<LuckyDrawMaster> LuckyDrawEvents { get; set; } = new List<LuckyDrawMaster>();
+        public List<LuckyDrawEventWithWinner> LuckyDrawEventsWithWinners { get; set; } = new List<LuckyDrawEventWithWinner>();
+
+        [BindProperty]
+        public int SelectedEventId { get; set; }
 
         public class EventSummary
         {
@@ -62,6 +67,12 @@ namespace CV.Lottery.Areas.Identity.Pages
             public string CardLast4 { get; set; }
             public string TransactionId { get; set; }
             public DateTime? PaidOn { get; set; }
+        }
+
+        public class LuckyDrawEventWithWinner
+        {
+            public LuckyDrawMaster Event { get; set; }
+            public string WinnerName { get; set; }
         }
 
         public PaymentDetail UserPaymentDetail { get; set; }
@@ -86,11 +97,11 @@ namespace CV.Lottery.Areas.Identity.Pages
                 var lotteryUser = _lotteryContext.LotteryUsers.FirstOrDefault(u => u.UserId == user.Id);
                 if (lotteryUser != null)
                 {
-                    var latestPayment = _lotteryContext.Payments
+                    var payment = _lotteryContext.Payments
                         .Where(p => p.UsersId == lotteryUser.Id)
-                        .OrderByDescending(p => p.PaymentId)
+                        .OrderByDescending(p => p.CreatedOn)
                         .FirstOrDefault();
-                    if (latestPayment == null || latestPayment.PaymentStatus != "Paid")
+                    if (payment == null || payment.PaymentStatus != "Paid")
                     {
                         // Not paid, redirect to payment page
                         return RedirectToPage("/Account/Payment", new { userId = lotteryUser.UserId });
@@ -105,6 +116,24 @@ namespace CV.Lottery.Areas.Identity.Pages
 
             if (IsAdmin)
             {
+                // Fetch all LuckyDrawMaster events
+                var events = _lotteryContext.LuckyDrawMaster.OrderByDescending(e => e.EventDate).ToList();
+                var winnersList = _lotteryContext.Winner.ToList();
+                var lotteryUsersList = _lotteryContext.LotteryUsers.ToList();
+                LuckyDrawEventsWithWinners = events.Select(e => {
+                    var winner = winnersList.FirstOrDefault(w => w.EventId == e.Id.ToString());
+                    string winnerName = null;
+                    if (winner != null)
+                    {
+                        var winnerUser = lotteryUsersList.FirstOrDefault(u => u.Id == winner.UsersId);
+                        winnerName = winnerUser?.UserName;
+                    }
+                    return new LuckyDrawEventWithWinner
+                    {
+                        Event = e,
+                        WinnerName = winnerName
+                    };
+                }).ToList();
                 // Fetch the latest active LuckyDrawMaster event for event name/date
                 var luckyDraw = _lotteryContext.LuckyDrawMaster
                     .Where(e => e.IsActive == true)
@@ -135,14 +164,14 @@ namespace CV.Lottery.Areas.Identity.Pages
                 // Find latest payment for each user
                 var users = usersWithUserRole
                     .Select(u => {
-                        var latestPayment = _lotteryContext.Payments
+                        var payment = _lotteryContext.Payments
                             .Where(p => p.UsersId == u.Id)
                             .OrderByDescending(p => p.CreatedOn)
                             .FirstOrDefault();
                         return new {
                             User = u,
-                            LatestPayment = latestPayment,
-                            PaidOn = latestPayment?.CreatedOn ?? u.CreatedOn
+                            Payment = payment,
+                            PaidOn = payment?.CreatedOn ?? u.CreatedOn
                         };
                     })
                     .ToList();
@@ -153,8 +182,8 @@ namespace CV.Lottery.Areas.Identity.Pages
                         UserName = x.User.UserName,
                         EventName = EventName,
                         WinnerAnnouncementDate = WinnerAnnouncementDate ?? DateTime.Now,
-                        PaymentStatus = x.LatestPayment != null && !string.IsNullOrEmpty(x.LatestPayment.PaymentStatus) ? x.LatestPayment.PaymentStatus : "Not Paid",
-                        Amount = (x.LatestPayment != null) ? x.LatestPayment.Amount : 0,
+                        PaymentStatus = x.Payment != null && !string.IsNullOrEmpty(x.Payment.PaymentStatus) ? x.Payment.PaymentStatus : "Not Paid",
+                        Amount = (x.Payment != null) ? x.Payment.Amount : 0,
                         UserId = x.User.Id,
                         PaidOn = x.PaidOn ?? DateTime.MinValue
                     })
@@ -234,6 +263,26 @@ namespace CV.Lottery.Areas.Identity.Pages
                 }
             }
             return Page();
+        }
+
+        public async Task<IActionResult> OnPostToggleActiveAsync(int id)
+        {
+            var eventToToggle = _lotteryContext.LuckyDrawMaster.FirstOrDefault(e => e.Id == id);
+            if (eventToToggle != null)
+            {
+                eventToToggle.IsActive = !(eventToToggle.IsActive ?? false);
+                _lotteryContext.SaveChanges();
+            }
+            return RedirectToPage();
+        }
+
+        public async Task<IActionResult> OnPostSelectWinnerAsync(int id)
+        {
+            SelectedEventId = id;
+            // Store event id logic here (e.g., in session, DB, or process winner selection)
+            // Example: TempData["SelectedEventId"] = id;
+            // TODO: Implement winner selection logic as needed
+            return RedirectToPage();
         }
     }
 }
