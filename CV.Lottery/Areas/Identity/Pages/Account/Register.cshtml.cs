@@ -200,9 +200,11 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
                     lotteryUser = _lotteryContext.LotteryUsers.FirstOrDefault(u => u.UserId == Input.Username || u.UserId == user.Id);
                     if (lotteryUser != null)
                     {
+                        TempData["RegistrationSuccess"] = true;
                         return RedirectToPage("/Account/Payment", new { userId = lotteryUser.UserId });
                     }
                     // fallback
+                    TempData["RegistrationSuccess"] = true;
                     return RedirectToPage("/Account/Payment");
                 }
                 foreach (var error in result.Errors)

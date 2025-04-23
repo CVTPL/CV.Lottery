@@ -4,6 +4,7 @@
     ViewData["Title"] = "Draw the Winner!";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var participantsJson = Newtonsoft.Json.JsonConvert.SerializeObject(Model.PaidUsers);
+    var eventId = Model.EventId;
 }
 <link rel="stylesheet" href="/css/winner-spinner.css" />
 <script src="/js/winner-spinner.js"></script>
@@ -43,7 +44,7 @@
                                     <!-- <button class="share-btn" onclick="shareWin()">🎉 Share Your Win</button> -->
                                     <form method="post" asp-page-handler="SaveWinner" class="d-inline">
                                         <input type="hidden" name="WinnerUserId" id="WinnerUserIdInput" />
-                                        <input type="hidden" name="EventId" value="@Request.Query["eventId"]" />
+                                        <input type="hidden" name="EventId" value="@eventId" />
                                         <button type="submit" class="btn btn-success ms-3">Save Winner</button>
                                     </form>
                                     <button class="replay-btn" onclick="replayDraw()">Replay Draw</button>

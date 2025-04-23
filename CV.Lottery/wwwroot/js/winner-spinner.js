@@ -62,8 +62,9 @@ function startSpinner() {
 }
 
 function showWinnerAnimated() {
-    document.getElementById('winner-name').innerText = winner.UserName;
-    document.getElementById('winner-email').innerText = winner.Email;
+    console.log('Winner object:', winner); // Debug: log the winner object
+    document.getElementById('winner-name').innerText = winner.UserName || winner.userName || winner.name || 'N/A';
+    document.getElementById('winner-email').innerText = winner.Email || winner.email || '';
     if (winner.AvatarUrl) {
         document.getElementById('winner-avatar').src = winner.AvatarUrl;
         document.getElementById('winner-avatar').style.display = 'block';
@@ -83,7 +84,11 @@ function showWinnerAnimated() {
     showFireworksAndSound();
     // Set hidden winner input for saving
     let winnerInput = document.getElementById('WinnerUserIdInput');
-    if (winnerInput) winnerInput.value = winner.UserId || winner.Id || '';
+    let winnerId = winner.UserId || winner.userId || winner.Id || winner.id || '';
+    if (winnerInput) {
+        winnerInput.value = winnerId;
+        console.log('Setting WinnerUserIdInput value to:', winnerId); // Debug
+    }
 }
 
 function showFireworksOnWinnerPanel() {

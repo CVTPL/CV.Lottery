@@ -39,12 +39,13 @@ namespace CV.Lottery.Areas.Identity.Pages
             public string Email { get; set; }
         }
 
-        public async Task OnGetAsync(bool winnerSaved = false)
+        public async Task OnGetAsync(int eventId = 0, bool winnerSaved = false)
         {
-            // Fetch paid payments and join with LotteryUsers to get user details
+            EventId = eventId;
+            // Fetch paid payments for the selected event and join with LotteryUsers to get user details
             PaidUsers = (from p in _lotteryContext.Payments
                          join u in _lotteryContext.LotteryUsers on p.UsersId equals u.Id
-                         where p.PaymentStatus == "Paid"
+                         where p.PaymentStatus == "Paid" && p.EventId == eventId
                          select new PaidUserDto
                          {
                              UserId = u.Id.ToString(),
@@ -72,7 +73,7 @@ namespace CV.Lottery.Areas.Identity.Pages
 
         public async Task<IActionResult> OnPostSaveWinnerAsync()
         {
-            await OnGetAsync();
+            // DO NOT call OnGetAsync here, it will overwrite EventId from POST
             if (!string.IsNullOrEmpty(WinnerUserId) && EventId > 0)
             {
                 // Find the user
@@ -92,7 +93,8 @@ namespace CV.Lottery.Areas.Identity.Pages
                     WinnerSaved = true;
                 }
             }
-            return RedirectToPage(new { winnerSaved = WinnerSaved });
+            // Always redirect with eventId so draw panel is repopulated
+            return RedirectToPage(new { winnerSaved = WinnerSaved, eventId = EventId });
         }
     }
 }

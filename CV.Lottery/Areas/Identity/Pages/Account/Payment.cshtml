@@ -2,6 +2,7 @@
 @model PaymentModel
 @{
     ViewData["Title"] = "Payment";
+    var registrationSuccess = TempData["RegistrationSuccess"] != null && (bool)TempData["RegistrationSuccess"];
 }
 <div class="container mt-5">
     <div class="row justify-content-center align-items-center min-vh-100">
@@ -10,9 +11,25 @@
                 <div class="card-body p-5">
                     <h3 class="card-title mb-4 text-center fw-bold text-primary">Complete Your Payment</h3>
                     <p class="text-muted text-center mb-4">Secure payment powered by <img src="https://stripe.com/img/v3/home/twitter.png" alt="Stripe" style="height:1.2em;vertical-align:middle;margin-left:2px;"> Stripe</p>
+                    @if (registrationSuccess)
+                    {
+                        <div class="toast align-items-center text-white bg-success border-0 show position-fixed top-0 end-0 m-4" id="registration-toast" role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 1055; min-width: 300px;">
+                            <div class="d-flex">
+                                <div class="toast-body">
+                                    <strong>Registration successful!</strong> You can now proceed with your payment.
+                                </div>
+                            </div>
+                        </div>
+                        <script>
+                            setTimeout(function() {
+                                var toast = document.getElementById('registration-toast');
+                                if (toast) toast.style.display = 'none';
+                            }, 3500);
+                        </script>
+                    }
                     @if (Model.PaymentSuccess)
                     {
-                        <div class="toast align-items-center text-white bg-success border-0 show position-fixed bottom-0 end-0 m-4" id="payment-toast" role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 1055; min-width: 300px;">
+                        <div class="toast align-items-center text-white bg-success border-0 show position-fixed top-0 end-0 m-4" id="payment-toast" role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 1055; min-width: 300px;">
                             <div class="d-flex">
                                 <div class="toast-body">
                                     <strong>Payment successful!</strong> Thank you.<br />
