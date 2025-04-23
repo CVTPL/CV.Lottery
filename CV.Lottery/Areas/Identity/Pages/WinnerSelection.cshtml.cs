@@ -76,9 +76,13 @@ namespace CV.Lottery.Areas.Identity.Pages
             // DO NOT call OnGetAsync here, it will overwrite EventId from POST
             if (!string.IsNullOrEmpty(WinnerUserId) && EventId > 0)
             {
-                // Find the user
+                // Find the winner user
                 var lotteryUser = _lotteryContext.LotteryUsers.FirstOrDefault(u => u.Id.ToString() == WinnerUserId);
-                if (lotteryUser != null)
+                // Get the current logged-in admin user
+                var aspUser = await _userManager.GetUserAsync(User);
+                var adminLotteryUser = _lotteryContext.LotteryUsers.FirstOrDefault(u => u.UserId == aspUser.Id);
+                var adminUserId = adminLotteryUser?.Id.ToString();
+                if (lotteryUser != null && !string.IsNullOrEmpty(adminUserId))
                 {
                     var winner = new Winner
                     {
@@ -86,7 +90,7 @@ namespace CV.Lottery.Areas.Identity.Pages
                         EventId = EventId.ToString(),
                         CreatedOn = DateTime.Now,
                         IsActive = true,
-                        CreatedBy = lotteryUser.Id.ToString(),
+                        CreatedBy = adminUserId, // Save logged-in admin's LotteryUsers.Id
                     };
                     _lotteryContext.Winner.Add(winner);
                     _lotteryContext.SaveChanges();
