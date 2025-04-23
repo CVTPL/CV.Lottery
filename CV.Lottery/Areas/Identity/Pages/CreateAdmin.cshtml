@@ -1,0 +1,137 @@
+@page
+@model CreateAdminModel
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "admin")]
+@{
+    ViewData["Title"] = "Create Admin";
+}
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6 col-xl-5">
+        <!-- Add Admin Modal -->
+        <div class="modal fade" id="addAdminModal" tabindex="-1" aria-labelledby="addAdminModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="addAdminModalLabel">Register Admin</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <form method="post" autocomplete="off">
+                    <div class="mb-3">
+                        <label asp-for="Input.Username" class="form-label fw-semibold">Username</label>
+                        <input asp-for="Input.Username" class="form-control form-control-lg" placeholder="Enter username" />
+                        <span asp-validation-for="Input.Username" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Input.Email" class="form-label fw-semibold">Email</label>
+                        <input asp-for="Input.Email" class="form-control form-control-lg" placeholder="Enter email address" />
+                        <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Input.Password" class="form-label fw-semibold">Password</label>
+                        <input asp-for="Input.Password" class="form-control form-control-lg" type="password" placeholder="Enter password" />
+                        <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Input.ConfirmPassword" class="form-label fw-semibold">Confirm Password</label>
+                        <input asp-for="Input.ConfirmPassword" class="form-control form-control-lg" type="password" placeholder="Confirm password" />
+                        <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success px-4">Add Admin</button>
+                    </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+</div>
+
+<!-- Admin/User Grid Header with Add Admin Button -->
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h3 class="mb-0">All Users</h3>
+    <button type="button" class="btn btn-primary px-4 py-2" data-bs-toggle="modal" data-bs-target="#addAdminModal">
+        <i class="bi bi-person-plus me-2"></i>Add Admin
+    </button>
+</div>
+<div class="table-responsive rounded-4 shadow-sm border bg-white p-3">
+    <table class="table table-hover align-middle mb-0 w-100" style="min-width: 480px;">
+        <thead class="table-light" style="background: #e3e6f0;">
+            <tr>
+                <th>User Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Created On</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.AllUsers != null && Model.AllUsers.Count > 0)
+            {
+                foreach (var user in Model.AllUsers)
+                {
+                    var aspUser = Model._userManager.Users.FirstOrDefault(u => u.Id == user.UserId);
+                    var roles = aspUser != null ? string.Join(", ", Model._userManager.GetRolesAsync(aspUser).Result) : "";
+                    <tr>
+                        <td class="text-break">@user.UserName</td>
+                        <td class="text-break">@user.Email</td>
+                        <td>@roles</td>
+                        <td>
+                            @if (user.CreatedOn.HasValue)
+                            {
+                                <span class="js-utc-date" data-utc="@user.CreatedOn.Value.ToString("yyyy-MM-ddTHH:mm:ssZ")"></span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">-</span>
+                            }
+                        </td>
+                        <td>
+                            @if (user.IsActive == true)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Inactive</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5" class="text-center text-muted">No users found.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="w-100 mt-3 d-flex justify-content-center">
+    @if (Model.TotalPages > 1)
+    {
+        <nav aria-label="User pagination" class="mb-2">
+            <ul class="pagination justify-content-center flex-nowrap my-1" style="min-width: 340px;">
+                <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                    <a class="page-link" href="?pageNumber=@(Model.PageNumber - 1)" tabindex="-1">Previous</a>
+                </li>
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                        <a class="page-link" href="?pageNumber=@i">@i</a>
+                    </li>
+                }
+                <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+                    <a class="page-link" href="?pageNumber=@(Model.PageNumber + 1)">Next</a>
+                </li>
+            </ul>
+        </nav>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
