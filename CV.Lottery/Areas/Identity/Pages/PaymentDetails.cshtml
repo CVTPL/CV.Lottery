@@ -20,7 +20,7 @@
                             <h3 class="fw-bold mb-0">Payment Details</h3>
                             <div class="small mt-1">
                                 <span class="fw-semibold">Event Name:</span> <span class="text-primary">@allEvents.FirstOrDefault()?.EventName</span><br />
-                                <span class="fw-semibold">Winner Announcement:</span> <span class="text-success">@allEvents.FirstOrDefault()?.WinnerAnnouncementDate.ToString("dd MMM yyyy")</span>
+                                <span class="fw-semibold">Winner Announcement:</span> <span class="text-success js-utc-date" data-utc="@allEvents.FirstOrDefault()?.WinnerAnnouncementDate.ToString("yyyy-MM-ddTHH:mm:ssZ")"></span>
                             </div>
                             <div class="col-auto ms-auto">
                                 @if (User.IsInRole("admin"))
@@ -123,7 +123,7 @@
                                             <td>
                                                 @if (evt.PaidOn != null && evt.PaidOn != DateTime.MinValue)
                                                 {
-                                                    @evt.PaidOn.ToString("dd MMM yyyy HH:mm")
+                                                    <span class="js-utc-date" data-utc="@evt.PaidOn.ToString("yyyy-MM-ddTHH:mm:ssZ")"></span>
                                                 }
                                                 else
                                                 {
@@ -168,3 +168,31 @@
         </div>
     </div>
 </main>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(function () {
+        $('.js-utc-date').each(function () {
+            var utc = $(this).data('utc');
+            if (utc) {
+                // Fix: Replace all periods with colons in time portion for ISO 8601 compatibility
+                var fixedUtc = utc.replace(/T(\d{2})\.(\d{2})\.(\d{2})Z/, function(_, h, m, s) {
+                    return 'T' + h + ':' + m + ':' + s + 'Z';
+                });
+                var date = new Date(fixedUtc);
+                if (!isNaN(date.getTime())) {
+                    var options = {
+                        year: 'numeric',
+                        month: 'short',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                    };
+                    $(this).text(date.toLocaleString(undefined, options));
+                } else {
+                    $(this).text(utc);
+                }
+            }
+        });
+    });
+</script>

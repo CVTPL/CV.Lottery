@@ -59,7 +59,7 @@
                                                 var eventItem = item.Event;
                                                 <tr>
                                                     <td>@eventItem.EventName</td>
-                                                    <td>@(eventItem.EventDate?.ToString("dd MMM yyyy") ?? "-")</td>
+                                                    <td class="js-utc-date" data-utc="@eventItem.EventDate?.ToString("yyyy-MM-ddTHH:mm:ssZ")"></td>
                                                     <td>@eventItem.Amount.ToString("C")</td>
                                                     <td>
                                                         @if (eventItem.IsActive == true)
@@ -103,7 +103,7 @@
                         <div class="alert alert-info d-flex align-items-center shadow-sm rounded-4 border-0 flex-wrap flex-md-nowrap text-center text-md-start mb-1" style="margin-bottom: 2px !important;" role="alert">
                             <i class="bi bi-calendar-event fs-4 text-primary me-3"></i>
                             <div>
-                                Event Date: <strong>@Model.WinnerAnnouncementDate.Value.ToString("dd MMM yyyy")</strong>
+                                Event Date: <strong class="js-utc-date" data-utc="@Model.WinnerAnnouncementDate?.ToString("yyyy-MM-ddTHH:mm:ssZ")"></strong>
                             </div>
                         </div>
                     }
@@ -136,7 +136,7 @@
                                         <span class="text-break text-end text-sm-start ms-sm-2">
                                             @if (Model.WinnerAnnouncementDate.HasValue)
                                             {
-                                                @Model.WinnerAnnouncementDate.Value.ToString("dd MMM yyyy")
+                                                <span class="js-utc-date" data-utc="@Model.WinnerAnnouncementDate?.ToString("yyyy-MM-ddTHH:mm:ssZ")"></span>
                                             }
                                             else
                                             {
@@ -190,7 +190,7 @@
                                         <span class="text-break text-end text-sm-start ms-2">
                                             @if (Model.PaidOn != null)
                                             {
-                                                @Model.PaidOn?.ToString("dd MMM yyyy HH:mm")
+                                                <span class="js-utc-date" data-utc="@Model.PaidOn?.ToString("yyyy-MM-ddTHH:mm:ssZ")"></span>
                                             }
                                             else
                                             {
@@ -207,6 +207,42 @@
         </div>
     </div>
 </main>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Use toLocaleString to format UTC dates in browser's local time
+    $(function () {
+        $('.js-utc-date').each(function () {
+            var utc = $(this).data('utc');
+            if (utc) {
+                // Fix: Replace all periods with colons in time portion for ISO 8601 compatibility
+                var fixedUtc = utc.replace(/T(\d{2})\.(\d{2})\.(\d{2})Z/, function(_, h, m, s) {
+                    return 'T' + h + ':' + m + ':' + s + 'Z';
+                });
+                var date = new Date(fixedUtc);
+                if (!isNaN(date.getTime())) {
+                    var options = {
+                        year: 'numeric',
+                        month: 'short',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                    };
+                    $(this).text(date.toLocaleString(undefined, options));
+                } else {
+                    $(this).text(utc);
+                }
+            }
+        });
+        // Show browser time
+        var now = new Date();
+        var options = {
+            year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true
+        };
+        $('#browserTimeDisplay').text(now.toLocaleString(undefined, options));
+    });
+</script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
