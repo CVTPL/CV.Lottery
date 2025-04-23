@@ -14,12 +14,25 @@
         <div class="row w-100 justify-content-center align-items-start gy-4">
             <div class="col-12 p-0">
                 <div class="mb-0">
+                    <!-- Event Info and Search (below header row) -->
                     <div class="row g-2 mb-3 align-items-center">
                         <div class="col text-center text-sm-start mb-2 mb-sm-0">
                             <h3 class="fw-bold mb-0">Payment Details</h3>
                             <div class="small mt-1">
                                 <span class="fw-semibold">Event Name:</span> <span class="text-primary">@allEvents.FirstOrDefault()?.EventName</span><br />
                                 <span class="fw-semibold">Winner Announcement:</span> <span class="text-success">@allEvents.FirstOrDefault()?.WinnerAnnouncementDate.ToString("dd MMM yyyy")</span>
+                            </div>
+                            <div class="col-auto ms-auto">
+                                @if (User.IsInRole("admin"))
+                                {
+                                    <form method="get" class="d-flex justify-content-end" style="max-width: 350px; gap: 0.5rem;margin-top: 6px;">
+                                        <div class="input-group">
+                                            <input type="text" name="SearchUserName" class="form-control" placeholder="Search by username..." value="@Model.SearchUserName" />
+                                            <button type="submit" class="btn btn-primary">Search</button>
+                                        </div>
+                                        <a href="@Url.Page(null)" class="btn btn-primary">Clear</a>
+                                    </form>
+                                }
                             </div>
                         </div>
                         <div class="col-12 col-md-4 col-lg-2">
@@ -40,22 +53,10 @@
                                 <div class="display-6 fw-bold text-danger">@Model.TotalNotPaidUsers</div>
                             </div>
                         </div>
-                        <div class="col-auto ms-auto">
-                            @if (User.IsInRole("admin"))
-                            {
-                                <form method="get" class="mb-3 d-flex justify-content-end" style="max-width: 350px; gap: 0.5rem;">
-                                    <div class="input-group">
-                                        <input type="text" name="SearchUserName" class="form-control" placeholder="Search by username..." value="@Model.SearchUserName" />
-                                        <button type="submit" class="btn btn-primary">Search</button>
-                                    </div>
-                                    <a href="@Url.Page(null)" class="btn btn-primary">Clear</a>
-                                </form>
-                            }
-                        </div>
                     </div>
                     <div class="table-responsive rounded-4 shadow-sm border bg-white p-3">
                         <table class="table table-hover align-middle mb-0 w-100" style="min-width: 480px;">
-                            <thead style="background: #e3e6f0;">
+                            <thead class="table-light" style="background: #e3e6f0;">
                                 <tr>
                                     <th>
                                         <a asp-page="PaymentDetails" asp-route-SortColumn="UserName" asp-route-SortDirection="@(Model.SortColumn == "UserName" && Model.SortDirection == "asc" ? "desc" : "asc")" asp-route-SearchUserName="@Model.SearchUserName">
@@ -108,7 +109,7 @@
                                             <td class="text-break">@evt.UserName</td>
                                             <td class="text-break">@evt.Email</td>
                                             <td class="fw-semibold text-success">$@evt.Amount</td>
-                                            <td class="text-center">
+                                            <td>
                                                 @if (evt.PaymentStatus == "Paid") {
                                                     <span class="badge bg-success">Paid</span>
                                                 } else if (evt.PaymentStatus == "Pending") {
