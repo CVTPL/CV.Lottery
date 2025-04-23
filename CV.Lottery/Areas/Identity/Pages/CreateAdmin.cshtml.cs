@@ -69,6 +69,39 @@ namespace CV.Lottery.Areas.Identity.Pages
             if (!ModelState.IsValid)
                 return Page();
 
+            // Check if username or email already exists (uniqueness check)
+            // Username uniqueness: check both LotteryUsers and display_username claim in Identity
+            var existingLotteryUser = await _lotteryContext.LotteryUsers.FirstOrDefaultAsync(u => u.UserName == Input.Username);
+            if (existingLotteryUser != null)
+            {
+                ModelState.AddModelError("Input.Username", "Username is already taken.");
+                return Page();
+            }
+            // Check username in display_username claim for all users
+            var allUsers = _userManager.Users.ToList();
+            foreach (var u in allUsers)
+            {
+                var claims = await _userManager.GetClaimsAsync(u);
+                if (claims.Any(c => c.Type == "display_username" && c.Value == Input.Username))
+                {
+                    ModelState.AddModelError("Input.Username", "Username is already taken.");
+                    return Page();
+                }
+            }
+            // Email uniqueness: check both Identity and LotteryUsers
+            var existingIdentityUser = await _userManager.FindByEmailAsync(Input.Email);
+            if (existingIdentityUser != null)
+            {
+                ModelState.AddModelError("Input.Email", "Email is already registered.");
+                return Page();
+            }
+            var existingLotteryEmail = await _lotteryContext.LotteryUsers.FirstOrDefaultAsync(u => u.Email == Input.Email);
+            if (existingLotteryEmail != null)
+            {
+                ModelState.AddModelError("Input.Email", "Email is already registered.");
+                return Page();
+            }
+
             // Create Identity user: set UserName/email logic as requested
             var user = new IdentityUser {
                 UserName = Input.Email, // Store email in UserName (as per user role logic)
@@ -85,6 +118,14 @@ namespace CV.Lottery.Areas.Identity.Pages
                     await _roleManager.CreateAsync(new IdentityRole("admin"));
                 }
                 await _userManager.AddToRoleAsync(user, "admin");
+
+                // Add claim for admin role (for AspNetUserClaims table)
+                var adminClaim = new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, "admin");
+                await _userManager.AddClaimAsync(user, adminClaim);
+
+                // Add claim for display_username (value from Username textbox)
+                var displayUsernameClaim = new System.Security.Claims.Claim("display_username", Input.Username);
+                await _userManager.AddClaimAsync(user, displayUsernameClaim);
 
                 // Save to LotteryUsers table as well
                 var aspNetUserId = user.Id; // This is the Id from AspNetUsers table
