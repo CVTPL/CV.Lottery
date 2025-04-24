@@ -123,7 +123,7 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
                     // Remove registration from session
                     HttpContext.Session.Remove("PendingRegistration");
                 }
-                return new JsonResult(new { redirect = Url.Page("/Index") });
+                return new JsonResult(new { success = true, redirect = Url.Page("/Index") });
             }
             else
             {
@@ -134,7 +134,7 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
                 {
                     // Optionally clear registration
                     HttpContext.Session.Remove("PendingRegistration");
-                    return new JsonResult(new { redirect = Url.Page("/Account/Login") });
+                    return new JsonResult(new { redirect = Url.Page("/Identity/NewRegisterPage") });
                 }
                 return new JsonResult(new { error = paymentResult.errorMessage });
             }

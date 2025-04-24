@@ -72,11 +72,11 @@ form.addEventListener('submit', async function (e) {
             body: JSON.stringify({ paymentMethodId: paymentMethod.id, amount: amount.toString() })
         });
         let result = await response.json();
-        if (result.redirect) {
+        if (result.redirect && result.success) {
             if (window.toastr) {
                 toastr.success('Payment successful! Thank you.', 'Success', {
                     positionClass: 'toast-top-right',
-                    timeOut: 10000
+                    timeOut: 3000
                 });
                 setTimeout(function() {
                     window.location.href = result.redirect;
@@ -84,6 +84,9 @@ form.addEventListener('submit', async function (e) {
             } else {
                 window.location.href = result.redirect;
             }
+        } else if (result.redirect) {
+            // fallback for redirect without explicit success
+            window.location.href = result.redirect;
         } else if (result.error) {
             if (window.toastr) {
                 toastr.error('Something went wrong, please try again!', 'Error', {
