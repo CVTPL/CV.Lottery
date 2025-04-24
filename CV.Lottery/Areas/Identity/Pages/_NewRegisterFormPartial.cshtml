@@ -1,0 +1,107 @@
+@model CV.Lottery.Areas.Identity.Pages.NewRegisterModel
+
+<form id="register-form" autocomplete="off">
+    @Html.AntiForgeryToken()
+    <div id="register-errors" class="text-danger mb-3"></div>
+    <div class="mb-4">
+        <input name="Input.Email" class="form-control form-control-lg mb-2" placeholder="Email*" style="border-radius: 8px;" required />
+    </div>
+    <div class="mb-4">
+        <label class="fw-bold text-primary mb-2" style="font-size: 1.15rem;">Name</label>
+        <div class="row g-2">
+            <div class="col-12 col-md-4">
+                <input name="Input.FirstName" class="form-control" placeholder="First Name*" style="border-radius: 8px;" required />
+            </div>
+            <div class="col-12 col-md-4">
+                <input name="Input.MiddleName" class="form-control" placeholder="Middle Name (optional)" style="border-radius: 8px;" />
+            </div>
+            <div class="col-12 col-md-4">
+                <input name="Input.LastName" class="form-control" placeholder="Last Name*" style="border-radius: 8px;" required />
+            </div>
+        </div>
+    </div>
+    <div class="mb-4">
+        <label class="fw-bold text-primary mb-2" style="font-size: 1.15rem;">Address</label>
+        <div class="row g-2 mb-2 align-items-end">
+            <div class="col-12">
+                <div class="form-floating mb-2">
+                    <select name="Input.Country" class="form-select fw-bold" id="countrySelect" style="border-radius: 8px;" required>
+                        <option value="">Country*</option>
+                        @foreach (var country in Model.CountryList)
+                        {
+                            <option value="@country.Value">@country.Text</option>
+                        }
+                    </select>
+                    <label for="countrySelect" class="text-muted">Country</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <input name="Input.StreetLine1" class="form-control mb-2" placeholder="Street Line1*" style="border-radius: 8px;" required />
+            </div>
+            <div class="col-12 col-md-6">
+                <input name="Input.StreetLine2" class="form-control mb-2" placeholder="Street Line2 (optional)" style="border-radius: 8px;" />
+            </div>
+            <div class="col-12 col-md-4">
+                <input name="Input.City" class="form-control mb-2" placeholder="City*" style="border-radius: 8px;" required />
+            </div>
+            <div class="col-12 col-md-4">
+                <input name="Input.State" class="form-control mb-2" placeholder="State*" style="border-radius: 8px;" required />
+            </div>
+            <div class="col-12 col-md-4">
+                <input name="Input.ZipPostal" class="form-control mb-2" placeholder="Zip/Postal Code*" style="border-radius: 8px;" required />
+            </div>
+        </div>
+    </div>
+    <div class="mb-4">
+        <label class="fw-bold text-primary mb-2" style="font-size: 1.15rem;">Phone</label>
+        <div class="row g-2">
+            <div class="col-12 col-md-6">
+                <input name="Input.Mobile" class="form-control" placeholder="Mobile*" style="border-radius: 8px;" required />
+            </div>
+            <div class="col-12 col-md-6">
+                <input name="Input.Home" class="form-control" placeholder="Home (optional)" style="border-radius: 8px;" />
+            </div>
+        </div>
+    </div>
+    <div class="mb-4 text-end">
+        <button id="register-submit" type="button" class="btn btn-primary px-4 py-2 fw-semibold">Save and continue</button>
+    </div>
+</form>
+<div id="register-message"></div>
+<script>
+$(function () {
+    $('#register-submit').on('click', function (e) {
+        e.preventDefault();
+        var missing = [];
+        var $form = $('#register-form');
+        $form.find('input[required], select[required]').each(function() {
+            if (!$(this).val()) {
+                missing.push($(this).attr('placeholder'));
+                $(this).addClass('is-invalid');
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+        if (missing.length > 0) {
+            $('#register-errors').html('Please fill out required fields: <br>' + missing.join(', '));
+            return;
+        } else {
+            $('#register-errors').empty();
+        }
+        var formData = $form.serialize();
+        var token = $form.find('input[name="__RequestVerificationToken"]').val();
+        $.ajax({
+            url: window.location.pathname,
+            type: 'POST',
+            data: formData,
+            headers: { 'RequestVerificationToken': token, 'X-Requested-With': 'XMLHttpRequest' },
+            success: function (result) {
+                $('.card .p-4').html(result);
+            },
+            error: function (xhr) {
+                $('.card .p-4').html('<div class="alert alert-danger">An error occurred (' + xhr.status + '). Please try again.</div>');
+            }
+        });
+    });
+});
+</script>

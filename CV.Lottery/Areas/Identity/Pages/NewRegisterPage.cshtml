@@ -14,6 +14,7 @@
                         <h2 class="fw-bold mb-0" style="font-size:2.1rem;">Profile</h2>
                     </div>
                     <form method="post" autocomplete="off">
+                        @Html.AntiForgeryToken()
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
                         <div class="mb-4">
                             <input asp-for="Input.Email" class="form-control form-control-lg mb-2" placeholder="Email" style="border-radius: 8px;" />
@@ -27,8 +28,8 @@
                                     <span asp-validation-for="Input.FirstName" class="text-danger"></span>
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <input asp-for="Input.MiddleName" class="form-control" placeholder="Middle Name" style="border-radius: 8px;" />
-                                    <!-- Middle name is optional, no validation message -->
+                                    <input asp-for="Input.MiddleName" class="form-control" placeholder="Middle Name" style="border-radius: 8px;" data-val="false" />
+                                    <!-- No validation span for optional field -->
                                 </div>
                                 <div class="col-12 col-md-4">
                                     <input asp-for="Input.LastName" class="form-control" placeholder="Last Name" style="border-radius: 8px;" />
@@ -57,8 +58,8 @@
                                     <span asp-validation-for="Input.StreetLine1" class="text-danger"></span>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <input asp-for="Input.StreetLine2" class="form-control mb-2" placeholder="Street Line2" style="border-radius: 8px;" />
-                                    <!-- Street Line 2 is optional, no validation message -->
+                                    <input asp-for="Input.StreetLine2" class="form-control mb-2" placeholder="Street Line2" style="border-radius: 8px;" data-val="false" />
+                                    <!-- No validation span for optional field -->
                                 </div>
                                 <div class="col-12 col-md-4">
                                     <input asp-for="Input.City" class="form-control mb-2" placeholder="City" style="border-radius: 8px;" />
@@ -82,8 +83,8 @@
                                     <span asp-validation-for="Input.Mobile" class="text-danger"></span>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <input asp-for="Input.Home" class="form-control" placeholder="Home" style="border-radius: 8px;" />
-                                    <!-- Home is optional, no validation message -->
+                                    <input asp-for="Input.Home" class="form-control" placeholder="Home" style="border-radius: 8px;" data-val="false" />
+                                    <!-- No validation span for optional field -->
                                 </div>
                             </div>
                         </div>

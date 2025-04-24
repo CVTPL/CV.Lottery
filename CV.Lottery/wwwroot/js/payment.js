@@ -23,20 +23,8 @@ card.mount('#card-element');
 // Enable amount field and submit button when card is valid
 let cardComplete = false;
 
-// Force amount field to stay disabled at all times
-function forceAmountDisabled() {
-    const amountInput = document.getElementById('payment-amount');
-    if (amountInput) amountInput.disabled = true;
-}
-
-// Call once on page load
-forceAmountDisabled();
-
 card.on('change', function(event) {
-    const amountInput = document.getElementById('payment-amount');
     const submitBtn = document.getElementById('submit-payment');
-    // Always keep amount disabled, only enable submit button
-    if (amountInput) amountInput.disabled = true;
     if (event.complete && !event.error) {
         cardComplete = true;
         submitBtn.disabled = false;
@@ -48,13 +36,13 @@ card.on('change', function(event) {
 
 let form = document.getElementById('payment-form');
 form.addEventListener('submit', async function (e) {
-    forceAmountDisabled(); // Ensure disabled before submit
     e.preventDefault();
     if (!cardComplete) {
         document.getElementById('card-errors').textContent = 'Please enter valid card details.';
         return;
     }
-    const amount = parseFloat(document.getElementById('payment-amount').value);
+    const amountInput = document.getElementById('payment-amount');
+    const amount = parseFloat(amountInput ? amountInput.value : 0);
     if (isNaN(amount) || amount <= 0) {
         document.getElementById('card-errors').textContent = 'Please enter a valid amount.';
         return;

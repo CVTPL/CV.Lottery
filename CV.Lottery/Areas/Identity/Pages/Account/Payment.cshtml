@@ -39,6 +39,10 @@
                     <form id="payment-form" method="post" autocomplete="off">
                         <input type="hidden" id="user-id" value="@Model.UserId" />
                         <div class="mb-3">
+                            <label for="payment-amount" class="form-label fw-bold">Amount</label>
+                            <input type="text" id="payment-amount" class="form-control" value="@Model.PaymentAmount" disabled />
+                        </div>
+                        <div class="mb-3">
                             <div id="card-element" class="form-control p-3 border border-2 rounded-3" style="min-height:48px;"></div>
                             <div id="card-errors" class="text-danger small mt-2"></div>
                         </div>

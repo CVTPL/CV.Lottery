@@ -7,6 +7,8 @@ using CV.Lottery.Models;
 using Microsoft.EntityFrameworkCore;
 using CV.Lottery.Context;
 using System.Text.Json;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace CV.Lottery.Areas.Identity.Pages.Account
 {
@@ -14,6 +16,7 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
     {
         private readonly IConfiguration _config;
         private readonly LotteryContext _lotteryContext;
+        private readonly UserManager<IdentityUser> _userManager;
         public bool PaymentSuccess { get; set; }
         public bool PaymentFailed { get; set; }
         public int AttemptCount { get; set; }
@@ -21,10 +24,11 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
         public string UserId { get; set; }
         public decimal PaymentAmount { get; set; }
 
-        public PaymentModel(IConfiguration config, LotteryContext lotteryContext)
+        public PaymentModel(IConfiguration config, LotteryContext lotteryContext, UserManager<IdentityUser> userManager)
         {
             _config = config;
             _lotteryContext = lotteryContext;
+            _userManager = userManager;
         }
 
         public void OnGet(string userId)
@@ -72,46 +76,68 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
                 PaymentSuccess = true;
                 HttpContext.Session.Remove("PaymentAttempt");
 
-                // Save payment entry in DB
-                string userId = UserId;
-                // Fallback: try to get from request body (if you send it from frontend)
-                if (string.IsNullOrEmpty(userId) && data != null && data.TryGetValue("userId", out var userIdFromBody))
+                // --- NEW: Retrieve registration data from session ---
+                var registrationJson = HttpContext.Session.GetString("PendingRegistration");
+                if (!string.IsNullOrEmpty(registrationJson))
                 {
-                    userId = userIdFromBody;
-                }
-                // Final fallback: try to get the first unpaid user from the DB
-                if (string.IsNullOrEmpty(userId))
-                {
-                    userId = GetFallbackUserId();
-                }
-                decimal amount = 0;
-                if (data != null && data.TryGetValue("amount", out var amountStr))
-                {
-                    decimal.TryParse(amountStr, out amount);
-                }
-                var lotteryUser = _lotteryContext.LotteryUsers.FirstOrDefault(u => u.UserId == userId);
-                if (lotteryUser != null)
-                {
-                    var latestActiveEvent = _lotteryContext.LuckyDrawMaster
-                        .Where(e => e.IsActive == true && e.EventDate >= DateTime.UtcNow.Date)
-                        .FirstOrDefault();
-                    int? eventId = latestActiveEvent?.Id;
-
-                    var payment = new Payments
+                    var reg = System.Text.Json.JsonSerializer.Deserialize<RegistrationSessionModel>(registrationJson);
+                    // 1. Create AspNetUser (Identity)
+                    var identityUser = new IdentityUser
                     {
-                        UsersId = lotteryUser.Id,
-                        Transaction = paymentResult.transactionId,
-                        PaymentStatus = "Paid",
-                        CreatedBy = lotteryUser.Id.ToString(),
-                        CreatedOn = DateTime.UtcNow,
-                        IsActive = true,
-                        EventId = eventId,
-                        Amount = amount
+                        UserName = reg.Email,
+                        Email = reg.Email,
+                        EmailConfirmed = true
                     };
-                    _lotteryContext.Payments.Add(payment);
-                    await _lotteryContext.SaveChangesAsync();
+                    var identityResult = await _userManager.CreateAsync(identityUser, "DefaultPassword@123"); // TODO: Replace with actual password logic
+                    if (identityResult.Succeeded)
+                    {
+                        // 2. Add claim
+                        var displayUserName = reg.FirstName + " " + reg.LastName;
+                        var claim = new Claim("display_username", displayUserName);
+                        await _userManager.AddClaimAsync(identityUser, claim);
+                        // 3. Save LotteryUser
+                        var lotteryUser = new LotteryUsers
+                        {
+                            Email = reg.Email,
+                            FirstName = reg.FirstName,
+                            MiddleName = reg.MiddleName,
+                            LastName = reg.LastName,
+                            Country = reg.Country,
+                            StreetLine1 = reg.StreetLine1,
+                            StreetLine2 = reg.StreetLine2,
+                            City = reg.City,
+                            State = reg.State,
+                            ZipCode = reg.ZipPostal,
+                            Mobile = reg.Mobile,
+                            Home = reg.Home,
+                            CreatedOn = DateTime.UtcNow,
+                            IsActive = true,
+                            UserId = identityUser.Id,
+                            CreatedBy = identityUser.Id
+                        };
+                        _lotteryContext.LotteryUsers.Add(lotteryUser);
+                        await _lotteryContext.SaveChangesAsync();
+                        // 4. Save Payment
+                        var latestActiveEvent = _lotteryContext.LuckyDrawMaster.Where(e => e.IsActive == true && e.EventDate >= DateTime.UtcNow.Date).FirstOrDefault();
+                        int? eventId = latestActiveEvent?.Id;
+                        var payment = new Payments
+                        {
+                            UsersId = lotteryUser.Id,
+                            Transaction = paymentResult.transactionId,
+                            PaymentStatus = "Paid",
+                            CreatedBy = lotteryUser.Id.ToString(),
+                            CreatedOn = DateTime.UtcNow,
+                            IsActive = true,
+                            EventId = eventId,
+                            Amount = PaymentAmount
+                        };
+                        _lotteryContext.Payments.Add(payment);
+                        await _lotteryContext.SaveChangesAsync();
+                        // Remove registration from session
+                        HttpContext.Session.Remove("PendingRegistration");
+                    }
                 }
-                return new JsonResult(new { redirect = Url.Page("/Account/Login") });
+                return new JsonResult(new { redirect = Url.Page("/Index") });
             }
             else
             {
@@ -120,42 +146,8 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
                 PaymentFailed = true;
                 if (AttemptCount >= 3)
                 {
-                    string userId = UserId;
-                    if (string.IsNullOrEmpty(userId) && data != null && data.TryGetValue("userId", out var userIdFromBody))
-                    {
-                        userId = userIdFromBody;
-                    }
-                    if (string.IsNullOrEmpty(userId))
-                    {
-                        userId = GetFallbackUserId();
-                    }
-                    decimal amount = 0;
-                    if (data != null && data.TryGetValue("amount", out var amountStr))
-                    {
-                        decimal.TryParse(amountStr, out amount);
-                    }
-                    var lotteryUser = _lotteryContext.LotteryUsers.FirstOrDefault(u => u.UserId == userId);
-                    if (lotteryUser != null)
-                    {
-                        var latestActiveEvent = _lotteryContext.LuckyDrawMaster
-                            .Where(e => e.IsActive == true && e.EventDate >= DateTime.UtcNow.Date)
-                            .FirstOrDefault();
-                        int? eventId = latestActiveEvent?.Id;
-
-                        var payment = new Payments
-                        {
-                            UsersId = lotteryUser.Id,
-                            Transaction = paymentResult.transactionId ?? Guid.NewGuid().ToString(),
-                            PaymentStatus = "Failed",
-                            CreatedBy = lotteryUser.Id.ToString(),
-                            CreatedOn = DateTime.UtcNow,
-                            IsActive = false,
-                            EventId = eventId,
-                            Amount = amount
-                        };
-                        _lotteryContext.Payments.Add(payment);
-                        await _lotteryContext.SaveChangesAsync();
-                    }
+                    // Optionally clear registration
+                    HttpContext.Session.Remove("PendingRegistration");
                     return new JsonResult(new { redirect = Url.Page("/Account/Login") });
                 }
                 return new JsonResult(new { error = paymentResult.errorMessage });
@@ -213,5 +205,22 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
                 return (false, null, ex.Message);
             }
         }
+    }
+
+    // Helper model for session registration data
+    public class RegistrationSessionModel
+    {
+        public string Email { get; set; }
+        public string FirstName { get; set; }
+        public string MiddleName { get; set; }
+        public string LastName { get; set; }
+        public string Country { get; set; }
+        public string StreetLine1 { get; set; }
+        public string StreetLine2 { get; set; }
+        public string City { get; set; }
+        public string State { get; set; }
+        public string ZipPostal { get; set; }
+        public string Mobile { get; set; }
+        public string Home { get; set; }
     }
 }

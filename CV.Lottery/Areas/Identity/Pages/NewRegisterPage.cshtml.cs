@@ -86,8 +86,18 @@ namespace CV.Lottery.Areas.Identity.Pages
         public async Task<IActionResult> OnPostAsync()
         {
             CountryList = GetCountryList(); // Ensure CountryList is always populated for the view
+            // Remove ModelState errors for optional fields (prevents aria-invalid)
+            ModelState.Remove("Input.MiddleName");
+            ModelState.Remove("Input.StreetLine2");
+            ModelState.Remove("Input.Home");
             if (!ModelState.IsValid)
             {
+                // If AJAX, return the partial form only
+                if (Request.Headers["X-Requested-With"].ToString().Equals("XMLHttpRequest", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    // Use the full path to the partial to avoid view location issues
+                    return Partial("~/Areas/Identity/Pages/_NewRegisterFormPartial.cshtml", this);
+                }
                 return Page();
             }
 
@@ -106,55 +116,31 @@ namespace CV.Lottery.Areas.Identity.Pages
                 return Page();
             }
 
-            // 1. Create AspNetUser (Identity)
-            var identityUser = new IdentityUser
+            // Ensure optional fields are never null
+            if (string.IsNullOrWhiteSpace(Input.MiddleName)) Input.MiddleName = string.Empty;
+            if (string.IsNullOrWhiteSpace(Input.StreetLine2)) Input.StreetLine2 = string.Empty;
+            if (string.IsNullOrWhiteSpace(Input.Home)) Input.Home = string.Empty;
+
+            // Store registration data in session and redirect to payment
+            var registrationData = new
             {
-                UserName = Input.Email, // or you may use Input.FirstName + Input.LastName for UserName
-                Email = Input.Email,
-                EmailConfirmed = true
+                Input.Email,
+                Input.FirstName,
+                Input.MiddleName,
+                Input.LastName,
+                Input.Country,
+                Input.StreetLine1,
+                Input.StreetLine2,
+                Input.City,
+                Input.State,
+                Input.ZipPostal,
+                Input.Mobile,
+                Input.Home
             };
-            var identityResult = await _userManager.CreateAsync(identityUser, "DefaultPassword@123"); // TODO: Replace with actual password logic
-            if (!identityResult.Succeeded)
-            {
-                foreach (var error in identityResult.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
-                return Page();
-            }
-
-            // Add display_username claim
-            var displayUserName = Input.FirstName + " " + Input.LastName;
-            var claim = new Claim("display_username", displayUserName);
-            await _userManager.AddClaimAsync(identityUser, claim);
-
-            // 2. Insert into LotteryUsers
-            var lotteryUser = new CV.Lottery.Models.LotteryUsers
-            {
-                Email = Input.Email,
-                UserId = identityUser.Id,
-                CreatedBy = identityUser.Id,
-                CreatedOn = DateTime.UtcNow,
-                IsActive = true,
-                UserName = Input.FirstName + " " + Input.LastName,
-                FirstName = Input.FirstName,
-                MiddleName = Input.MiddleName,
-                LastName = Input.LastName,
-                Country = Input.Country,
-                StreetLine1 = Input.StreetLine1,
-                StreetLine2 = Input.StreetLine2,
-                City = Input.City,
-                State = Input.State,
-                ZipCode = Input.ZipPostal,
-                Mobile = Input.Mobile,
-                Home = Input.Home
-                // Add other fields as needed
-            };
-            _context.LotteryUsers.Add(lotteryUser);
-            await _context.SaveChangesAsync();
-
-            // After saving LotteryUser, redirect to Payment page with userId
-            return RedirectToPage("/Account/Payment", new { userId = identityUser.Id });
+            var registrationJson = System.Text.Json.JsonSerializer.Serialize(registrationData);
+            HttpContext.Session.SetString("PendingRegistration", registrationJson);
+            // Redirect to payment page
+            return RedirectToPage("/Account/Payment");
         }
     }
 }
