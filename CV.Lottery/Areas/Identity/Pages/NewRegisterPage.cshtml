@@ -79,11 +79,11 @@
                             <label class="fw-bold text-primary mb-2" style="font-size: 1.15rem;">Phone</label>
                             <div class="row g-2">
                                 <div class="col-12 col-md-6">
-                                    <input asp-for="Input.Mobile" class="form-control" placeholder="Mobile" style="border-radius: 8px;" />
+                                    <input asp-for="Input.Mobile" class="form-control" placeholder="Mobile" style="border-radius: 8px;" type="tel" inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/[^0-9]/g,'');" />
                                     <span asp-validation-for="Input.Mobile" class="text-danger"></span>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <input asp-for="Input.Home" class="form-control" placeholder="Home" style="border-radius: 8px;" data-val="false" />
+                                    <input asp-for="Input.Home" class="form-control" placeholder="Home" style="border-radius: 8px;" data-val="false" type="tel" inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/[^0-9]/g,'');" />
                                     <!-- No validation span for optional field -->
                                 </div>
                             </div>

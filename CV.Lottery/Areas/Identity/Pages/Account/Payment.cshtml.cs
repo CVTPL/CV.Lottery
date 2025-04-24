@@ -81,61 +81,47 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
                 if (!string.IsNullOrEmpty(registrationJson))
                 {
                     var reg = System.Text.Json.JsonSerializer.Deserialize<RegistrationSessionModel>(registrationJson);
-                    // 1. Create AspNetUser (Identity)
-                    var identityUser = new IdentityUser
+                    // Only create LotteryUser, do NOT create AspNetUser
+                    var lotteryUser = new LotteryUsers
                     {
-                        UserName = reg.Email,
                         Email = reg.Email,
-                        EmailConfirmed = true
+                        FirstName = reg.FirstName,
+                        MiddleName = reg.MiddleName,
+                        UserName = reg.FirstName + " " + reg.LastName,
+                        LastName = reg.LastName,
+                        Country = reg.Country,
+                        StreetLine1 = reg.StreetLine1,
+                        StreetLine2 = reg.StreetLine2,
+                        City = reg.City,
+                        State = reg.State,
+                        ZipCode = reg.ZipPostal,
+                        Mobile = reg.Mobile,
+                        Home = reg.Home,
+                        CreatedOn = DateTime.UtcNow,
+                        IsActive = true,
+                        UserId = reg.Email, // Use Email as unique identifier for non-Identity users
+                        CreatedBy = null // Allow null as per your DB schema
                     };
-                    var identityResult = await _userManager.CreateAsync(identityUser, "DefaultPassword@123"); // TODO: Replace with actual password logic
-                    if (identityResult.Succeeded)
+                    _lotteryContext.LotteryUsers.Add(lotteryUser);
+                    await _lotteryContext.SaveChangesAsync();
+                    // Save Payment as before
+                    var latestActiveEvent = _lotteryContext.LuckyDrawMaster.Where(e => e.IsActive == true && e.EventDate >= DateTime.UtcNow.Date).FirstOrDefault();
+                    int? eventId = latestActiveEvent?.Id;
+                    var payment = new Payments
                     {
-                        // 2. Add claim
-                        var displayUserName = reg.FirstName + " " + reg.LastName;
-                        var claim = new Claim("display_username", displayUserName);
-                        await _userManager.AddClaimAsync(identityUser, claim);
-                        // 3. Save LotteryUser
-                        var lotteryUser = new LotteryUsers
-                        {
-                            Email = reg.Email,
-                            FirstName = reg.FirstName,
-                            MiddleName = reg.MiddleName,
-                            LastName = reg.LastName,
-                            Country = reg.Country,
-                            StreetLine1 = reg.StreetLine1,
-                            StreetLine2 = reg.StreetLine2,
-                            City = reg.City,
-                            State = reg.State,
-                            ZipCode = reg.ZipPostal,
-                            Mobile = reg.Mobile,
-                            Home = reg.Home,
-                            CreatedOn = DateTime.UtcNow,
-                            IsActive = true,
-                            UserId = identityUser.Id,
-                            CreatedBy = identityUser.Id
-                        };
-                        _lotteryContext.LotteryUsers.Add(lotteryUser);
-                        await _lotteryContext.SaveChangesAsync();
-                        // 4. Save Payment
-                        var latestActiveEvent = _lotteryContext.LuckyDrawMaster.Where(e => e.IsActive == true && e.EventDate >= DateTime.UtcNow.Date).FirstOrDefault();
-                        int? eventId = latestActiveEvent?.Id;
-                        var payment = new Payments
-                        {
-                            UsersId = lotteryUser.Id,
-                            Transaction = paymentResult.transactionId,
-                            PaymentStatus = "Paid",
-                            CreatedBy = lotteryUser.Id.ToString(),
-                            CreatedOn = DateTime.UtcNow,
-                            IsActive = true,
-                            EventId = eventId,
-                            Amount = PaymentAmount
-                        };
-                        _lotteryContext.Payments.Add(payment);
-                        await _lotteryContext.SaveChangesAsync();
-                        // Remove registration from session
-                        HttpContext.Session.Remove("PendingRegistration");
-                    }
+                        UsersId = lotteryUser.Id,
+                        Transaction = paymentResult.transactionId,
+                        PaymentStatus = "Paid",
+                        CreatedBy = lotteryUser.Id.ToString(),
+                        CreatedOn = DateTime.UtcNow,
+                        IsActive = true,
+                        EventId = eventId,
+                        Amount = PaymentAmount
+                    };
+                    _lotteryContext.Payments.Add(payment);
+                    await _lotteryContext.SaveChangesAsync();
+                    // Remove registration from session
+                    HttpContext.Session.Remove("PendingRegistration");
                 }
                 return new JsonResult(new { redirect = Url.Page("/Index") });
             }
@@ -222,5 +208,6 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
         public string ZipPostal { get; set; }
         public string Mobile { get; set; }
         public string Home { get; set; }
+        public string Password { get; set; }
     }
 }

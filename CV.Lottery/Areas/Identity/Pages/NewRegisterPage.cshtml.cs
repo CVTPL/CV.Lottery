@@ -102,12 +102,12 @@ namespace CV.Lottery.Areas.Identity.Pages
             }
 
             // Check if email already exists in AspNetUsers
-            var existingIdentityUser = await _userManager.FindByEmailAsync(Input.Email);
-            if (existingIdentityUser != null)
-            {
-                ModelState.AddModelError("Input.Email", "An account with this email already exists.");
-                return Page();
-            }
+            //var existingIdentityUser = await _userManager.FindByEmailAsync(Input.Email);
+            //if (existingIdentityUser != null)
+            //{
+            //    ModelState.AddModelError("Input.Email", "An account with this email already exists.");
+            //    return Page();
+            //}
             // Check if email already exists in LotteryUsers (for extra safety)
             var existingLotteryUser = _context.LotteryUsers.FirstOrDefault(u => u.Email.ToLower() == Input.Email.ToLower());
             if (existingLotteryUser != null)

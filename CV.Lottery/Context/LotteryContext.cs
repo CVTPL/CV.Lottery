@@ -128,8 +128,6 @@ public partial class LotteryContext : DbContext
 
             entity.HasIndex(e => e.Email, "UQ_LotteryUsers_Email").IsUnique();
 
-            entity.HasIndex(e => e.UserName, "UQ_LotteryUsers_UserName").IsUnique();
-
             entity.Property(e => e.City)
                 .HasMaxLength(250)
                 .IsUnicode(false);
@@ -174,11 +172,6 @@ public partial class LotteryContext : DbContext
             entity.Property(e => e.ZipCode)
                 .HasMaxLength(250)
                 .IsUnicode(false);
-
-            entity.HasOne(d => d.User).WithMany(p => p.LotteryUsers)
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Users__GuId__59FA5E80");
         });
 
         modelBuilder.Entity<LuckyDrawMaster>(entity =>

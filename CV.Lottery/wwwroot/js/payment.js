@@ -62,22 +62,54 @@ form.addEventListener('submit', async function (e) {
     }
 
     const userId = document.getElementById('user-id')?.value || '';
-    // Submit paymentMethod.id to server
-    let response = await fetch(window.location.pathname, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
-        },
-        body: JSON.stringify({ paymentMethodId: paymentMethod.id, userId, amount: amount.toString() })
-    });
-    let result = await response.json();
-    if (result.redirect) {
-        window.location = result.redirect;
-    } else if (result.error) {
-        document.getElementById('card-errors').textContent = result.error;
-        document.getElementById('submit-payment').disabled = false;
-    } else {
-        window.location.reload();
+    try {
+        let response = await fetch(window.location.pathname, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+            },
+            body: JSON.stringify({ paymentMethodId: paymentMethod.id, amount: amount.toString() })
+        });
+        let result = await response.json();
+        if (result.redirect) {
+            if (window.toastr) {
+                toastr.success('Payment successful! Thank you.', 'Success', {
+                    positionClass: 'toast-top-right',
+                    timeOut: 10000
+                });
+                setTimeout(function() {
+                    window.location.href = result.redirect;
+                }, 3000);
+            } else {
+                window.location.href = result.redirect;
+            }
+        } else if (result.error) {
+            if (window.toastr) {
+                toastr.error('Something went wrong, please try again!', 'Error', {
+                    positionClass: 'toast-top-right',
+                    timeOut: 10000
+                });
+                setTimeout(function() {
+                    window.location.href = '/Identity/NewRegisterPage';
+                }, 10000);
+            } else {
+                window.location.href = '/Identity/NewRegisterPage';
+            }
+        } else {
+            window.location.href = '/Account/Payment';
+        }
+    } catch (ex) {
+        if (window.toastr) {
+            toastr.error('Something went wrong, please try again!', 'Error', {
+                positionClass: 'toast-top-right',
+                timeOut: 10000
+            });
+            setTimeout(function() {
+                window.location.href = '/Identity/NewRegisterPage';
+            }, 10000);
+        } else {
+            window.location.href = '/Identity/NewRegisterPage';
+        }
     }
 });
