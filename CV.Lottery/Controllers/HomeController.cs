@@ -15,7 +15,8 @@ namespace CV.Lottery.Controllers
 
         public IActionResult Index()
         {
-            return Redirect("/Identity/Account/Login");
+            // Redirect to the new landing page instead of login
+            return Redirect("/Identity/Index");
         }
 
         public IActionResult Privacy()

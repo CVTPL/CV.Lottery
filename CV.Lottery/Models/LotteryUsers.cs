@@ -25,6 +25,28 @@ public partial class LotteryUsers
 
     public string UserName { get; set; }
 
+    public string FirstName { get; set; }
+
+    public string MiddleName { get; set; }
+
+    public string LastName { get; set; }
+
+    public string Country { get; set; }
+
+    public string StreetLine1 { get; set; }
+
+    public string StreetLine2 { get; set; }
+
+    public string City { get; set; }
+
+    public string State { get; set; }
+
+    public string ZipCode { get; set; }
+
+    public string Mobile { get; set; }
+
+    public string Home { get; set; }
+
     public virtual ICollection<Payments> Payments { get; set; } = new List<Payments>();
 
     public virtual AspNetUsers User { get; set; }

@@ -38,7 +38,7 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
                 .FirstOrDefault();
             if (latestActiveEvent != null)
             {
-                PaymentAmount = latestActiveEvent.Amount;
+                PaymentAmount = (decimal)latestActiveEvent.Amount ;
                 ViewData["EventId"] = latestActiveEvent.Id;
             }
             else

@@ -182,7 +182,7 @@ namespace CV.Lottery.Areas.Identity.Pages
                         EventName = EventName,
                         WinnerAnnouncementDate = WinnerAnnouncementDate ?? DateTime.Now,
                         PaymentStatus = x.Payment != null && !string.IsNullOrEmpty(x.Payment.PaymentStatus) ? x.Payment.PaymentStatus : "Not Paid",
-                        Amount = (x.Payment != null) ? x.Payment.Amount : 0,
+                        Amount = (x.Payment != null) ? (decimal)x.Payment.Amount : 0,
                         UserId = x.User.Id,
                         PaidOn = x.PaidOn ?? DateTime.MinValue,
                         Email = x.User.Email // Added for PaymentDetails grid
@@ -221,7 +221,7 @@ namespace CV.Lottery.Areas.Identity.Pages
                     UserPaymentDetail = new PaymentDetail
                     {
                         PaymentStatus = (payment != null && !string.IsNullOrWhiteSpace(payment.PaymentStatus)) ? payment.PaymentStatus : "Not Paid",
-                        Amount = (payment != null && payment.Amount != null) ? payment.Amount : 0,
+                        Amount = (payment != null && payment.Amount != null) ? (decimal)payment.Amount : 0,
                         CardLast4 = (payment != null && !string.IsNullOrEmpty(payment.Transaction) && payment.Transaction.Length > 4)
                             ? payment.Transaction.Substring(payment.Transaction.Length - 4)
                             : "N/A",

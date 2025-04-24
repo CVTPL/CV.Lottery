@@ -26,6 +26,8 @@ public partial class LotteryContext : DbContext
 
     public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
 
+    public virtual DbSet<Country> Country { get; set; }
+
     public virtual DbSet<LotteryUsers> LotteryUsers { get; set; }
 
     public virtual DbSet<LuckyDrawMaster> LuckyDrawMaster { get; set; }
@@ -112,6 +114,14 @@ public partial class LotteryContext : DbContext
                     });
         });
 
+        modelBuilder.Entity<Country>(entity =>
+        {
+            entity.HasKey(e => e.CountryId).HasName("PK__Country__10D1609F20E02922");
+
+            entity.Property(e => e.Name).IsUnicode(false);
+            entity.Property(e => e.Value).IsUnicode(false);
+        });
+
         modelBuilder.Entity<LotteryUsers>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Users__3214EC074DC0B264");
@@ -120,6 +130,10 @@ public partial class LotteryContext : DbContext
 
             entity.HasIndex(e => e.UserName, "UQ_LotteryUsers_UserName").IsUnique();
 
+            entity.Property(e => e.City)
+                .HasMaxLength(250)
+                .IsUnicode(false);
+            entity.Property(e => e.Country).IsUnicode(false);
             entity.Property(e => e.CreatedBy)
                 .HasMaxLength(250)
                 .IsUnicode(false);
@@ -127,6 +141,26 @@ public partial class LotteryContext : DbContext
             entity.Property(e => e.Email)
                 .HasMaxLength(250)
                 .IsUnicode(false);
+            entity.Property(e => e.FirstName)
+                .HasMaxLength(250)
+                .IsUnicode(false);
+            entity.Property(e => e.Home)
+                .HasMaxLength(250)
+                .IsUnicode(false);
+            entity.Property(e => e.LastName)
+                .HasMaxLength(250)
+                .IsUnicode(false);
+            entity.Property(e => e.MiddleName)
+                .HasMaxLength(250)
+                .IsUnicode(false);
+            entity.Property(e => e.Mobile)
+                .HasMaxLength(250)
+                .IsUnicode(false);
+            entity.Property(e => e.State)
+                .HasMaxLength(250)
+                .IsUnicode(false);
+            entity.Property(e => e.StreetLine1).IsUnicode(false);
+            entity.Property(e => e.StreetLine2).IsUnicode(false);
             entity.Property(e => e.UpdatedBy)
                 .HasMaxLength(250)
                 .IsUnicode(false);
@@ -135,6 +169,9 @@ public partial class LotteryContext : DbContext
                 .IsRequired()
                 .HasMaxLength(450);
             entity.Property(e => e.UserName)
+                .HasMaxLength(250)
+                .IsUnicode(false);
+            entity.Property(e => e.ZipCode)
                 .HasMaxLength(250)
                 .IsUnicode(false);
 
