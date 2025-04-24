@@ -53,25 +53,25 @@
                                         <span asp-validation-for="Input.Country" class="text-danger"></span>
                                     </div>
                                 </div>
-                                <div class="col-12 col-md-6">
-                                    <input asp-for="Input.StreetLine1" class="form-control mb-2" placeholder="Street Line1" style="border-radius: 8px;" />
-                                    <span asp-validation-for="Input.StreetLine1" class="text-danger"></span>
+                                <div class="col-12 col-md-6 mb-3 position-relative">
+                                    <input asp-for="Input.StreetLine1" class="form-control" placeholder="Street Line1" style="border-radius: 8px;" />
+                                    <span asp-validation-for="Input.StreetLine1" class="text-danger position-absolute start-0" style="top:100%;"></span>
                                 </div>
-                                <div class="col-12 col-md-6">
-                                    <input asp-for="Input.StreetLine2" class="form-control mb-2" placeholder="Street Line2" style="border-radius: 8px;" data-val="false" />
+                                <div class="col-12 col-md-6 mb-3">
+                                    <input asp-for="Input.StreetLine2" class="form-control" placeholder="Street Line2" style="border-radius: 8px;" data-val="false" />
                                     <!-- No validation span for optional field -->
                                 </div>
-                                <div class="col-12 col-md-4">
-                                    <input asp-for="Input.City" class="form-control mb-2" placeholder="City" style="border-radius: 8px;" />
-                                    <span asp-validation-for="Input.City" class="text-danger"></span>
+                                <div class="col-12 col-md-4 mb-3 position-relative">
+                                    <input asp-for="Input.City" class="form-control" placeholder="City" style="border-radius: 8px;" />
+                                    <span asp-validation-for="Input.City" class="text-danger position-absolute start-0" style="top:100%;"></span>
                                 </div>
-                                <div class="col-12 col-md-4">
-                                    <input asp-for="Input.State" class="form-control mb-2" placeholder="State" style="border-radius: 8px;" />
-                                    <span asp-validation-for="Input.State" class="text-danger"></span>
+                                <div class="col-12 col-md-4 mb-3 position-relative">
+                                    <input asp-for="Input.State" class="form-control" placeholder="State" style="border-radius: 8px;" />
+                                    <span asp-validation-for="Input.State" class="text-danger position-absolute start-0" style="top:100%;"></span>
                                 </div>
-                                <div class="col-12 col-md-4">
-                                    <input asp-for="Input.ZipPostal" class="form-control mb-2" placeholder="Zip/Postal Code" style="border-radius: 8px;" />
-                                    <span asp-validation-for="Input.ZipPostal" class="text-danger"></span>
+                                <div class="col-12 col-md-4 mb-3 position-relative">
+                                    <input asp-for="Input.ZipPostal" class="form-control" placeholder="Zip/Postal Code" style="border-radius: 8px;" />
+                                    <span asp-validation-for="Input.ZipPostal" class="text-danger position-absolute start-0" style="top:100%;"></span>
                                 </div>
                             </div>
                         </div>
