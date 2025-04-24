@@ -41,18 +41,6 @@
                                 <div class="display-6 fw-bold text-primary">@Model.TotalUsers</div>
                             </div>
                         </div>
-                        <div class="col-12 col-md-4 col-lg-2">
-                            <div class="card shadow-sm border-0 rounded-4 text-center py-3 bg-white ">
-                                <div class="fw-semibold text-muted mb-1">Total Paid</div>
-                                <div class="display-6 fw-bold text-success">@Model.TotalPaidUsers</div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-4 col-lg-2">
-                            <div class="card shadow-sm border-0 rounded-4 text-center py-3 bg-white ">
-                                <div class="fw-semibold text-muted mb-1">Not Paid</div>
-                                <div class="display-6 fw-bold text-danger">@Model.TotalNotPaidUsers</div>
-                            </div>
-                        </div>
                     </div>
                     <div class="table-responsive rounded-4 shadow-sm border bg-white p-3">
                         <table class="table table-hover align-middle mb-0 w-100" style="min-width: 480px;">
@@ -103,7 +91,7 @@
                             <tbody>
                                 @if (allEvents != null && allEvents.Count > 0)
                                 {
-                                    foreach (var evt in allEvents)
+                                    foreach (var evt in allEvents.Where(e => e.PaymentStatus == "Paid"))
                                     {
                                         <tr>
                                             <td class="text-break">@evt.UserName</td>

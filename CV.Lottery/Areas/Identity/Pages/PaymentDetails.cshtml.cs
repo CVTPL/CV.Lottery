@@ -27,10 +27,8 @@ namespace CV.Lottery.Areas.Identity.Pages
 
         public int PageNumber { get; set; }
         public int TotalPages { get; set; }
-        public List<DashboardModel.EventSummary> AllEvents { get; set; }
         public int TotalUsers { get; set; }
-        public int TotalPaidUsers { get; set; }
-        public int TotalNotPaidUsers { get; set; }
+        public List<DashboardModel.EventSummary> AllEvents { get; set; }
 
         [BindProperty(SupportsGet = true)]
         public string SearchUserName { get; set; }
@@ -118,13 +116,14 @@ namespace CV.Lottery.Areas.Identity.Pages
                 })
                 .ToList();
 
-            // Calculate summary tiles
+            // Restore TotalUsers calculation
             TotalUsers = users.Count;
-            TotalPaidUsers = users.Count(x => x.PaymentStatus == "Paid");
-            TotalNotPaidUsers = users.Count(x => x.PaymentStatus == "Not Paid" || x.PaymentStatus == "Failed" || x.PaymentStatus == "Pending");
+
+            // Filter to only paid users
+            AllEvents = users.Where(e => e.PaymentStatus == "Paid").ToList();
 
             // Apply sorting to AllEvents (the grid)
-            IEnumerable<DashboardModel.EventSummary> sortedEvents = users;
+            IEnumerable<DashboardModel.EventSummary> sortedEvents = AllEvents;
             if (!string.IsNullOrEmpty(SortColumn))
             {
                 bool ascending = string.IsNullOrEmpty(SortDirection) || SortDirection.ToLower() == "asc";
@@ -132,28 +131,28 @@ namespace CV.Lottery.Areas.Identity.Pages
                 {
                     case "username":
                         sortedEvents = ascending
-                            ? users.OrderBy(e => e.UserName)
-                            : users.OrderByDescending(e => e.UserName);
+                            ? AllEvents.OrderBy(e => e.UserName)
+                            : AllEvents.OrderByDescending(e => e.UserName);
                         break;
                     case "email":
                         sortedEvents = ascending
-                            ? users.OrderBy(e => e.Email)
-                            : users.OrderByDescending(e => e.Email);
+                            ? AllEvents.OrderBy(e => e.Email)
+                            : AllEvents.OrderByDescending(e => e.Email);
                         break;
                     case "amount":
                         sortedEvents = ascending
-                            ? users.OrderBy(e => e.Amount)
-                            : users.OrderByDescending(e => e.Amount);
+                            ? AllEvents.OrderBy(e => e.Amount)
+                            : AllEvents.OrderByDescending(e => e.Amount);
                         break;
                     case "paymentstatus":
                         sortedEvents = ascending
-                            ? users.OrderBy(e => e.PaymentStatus)
-                            : users.OrderByDescending(e => e.PaymentStatus);
+                            ? AllEvents.OrderBy(e => e.PaymentStatus)
+                            : AllEvents.OrderByDescending(e => e.PaymentStatus);
                         break;
                     case "paidon":
                         sortedEvents = ascending
-                            ? users.OrderBy(e => e.PaidOn)
-                            : users.OrderByDescending(e => e.PaidOn);
+                            ? AllEvents.OrderBy(e => e.PaidOn)
+                            : AllEvents.OrderByDescending(e => e.PaidOn);
                         break;
                     default:
                         break;
@@ -161,7 +160,7 @@ namespace CV.Lottery.Areas.Identity.Pages
             }
             else
             {
-                sortedEvents = users.OrderByDescending(e => e.UserId);
+                sortedEvents = AllEvents.OrderByDescending(e => e.UserId);
             }
 
             int PageSize = 10;
