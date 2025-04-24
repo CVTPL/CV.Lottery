@@ -71,10 +71,17 @@ namespace CV.Lottery.Areas.Identity.Pages
 
             // Check if username or email already exists (uniqueness check)
             // Username uniqueness: check both LotteryUsers and display_username claim in Identity
-            var existingLotteryUser = await _lotteryContext.LotteryUsers.FirstOrDefaultAsync(u => u.UserName == Input.Username);
+            var existingLotteryUser = await _lotteryContext.LotteryUsers.FirstOrDefaultAsync(u => u.UserName.ToLower() == Input.Username.ToLower());
             if (existingLotteryUser != null)
             {
                 ModelState.AddModelError("Input.Username", "Username is already taken.");
+                return Page();
+            }
+            // Check username in AspNetUsers table (case-insensitive, trimmed)
+            var existingAspNetUser = await _lotteryContext.AspNetUsers.FirstOrDefaultAsync(u => u.UserName.ToLower() == Input.Username.ToLower());
+            if (existingAspNetUser != null)
+            {
+                ModelState.AddModelError("Input.Username", "Username is already taken in the system (AspNetUsers table).");
                 return Page();
             }
             // Check username in display_username claim for all users
@@ -82,7 +89,7 @@ namespace CV.Lottery.Areas.Identity.Pages
             foreach (var u in allUsers)
             {
                 var claims = await _userManager.GetClaimsAsync(u);
-                if (claims.Any(c => c.Type == "display_username" && c.Value == Input.Username))
+                if (claims.Any(c => c.Type == "display_username" && c.Value.ToLower() == Input.Username.ToLower()))
                 {
                     ModelState.AddModelError("Input.Username", "Username is already taken.");
                     return Page();
@@ -104,8 +111,8 @@ namespace CV.Lottery.Areas.Identity.Pages
 
             // Create Identity user: set UserName/email logic as requested
             var user = new IdentityUser {
-                UserName = Input.Email, // Store email in UserName (as per user role logic)
-                NormalizedUserName = Input.Email.ToUpperInvariant(),
+                UserName = Input.Username, // Store the actual username!
+                NormalizedUserName = Input.Username.ToUpperInvariant(),
                 Email = Input.Email,
                 EmailConfirmed = true
             };

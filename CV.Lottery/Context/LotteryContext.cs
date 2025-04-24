@@ -116,6 +116,10 @@ public partial class LotteryContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__Users__3214EC074DC0B264");
 
+            entity.HasIndex(e => e.Email, "UQ_LotteryUsers_Email").IsUnique();
+
+            entity.HasIndex(e => e.UserName, "UQ_LotteryUsers_UserName").IsUnique();
+
             entity.Property(e => e.CreatedBy)
                 .HasMaxLength(250)
                 .IsUnicode(false);
@@ -160,7 +164,6 @@ public partial class LotteryContext : DbContext
         modelBuilder.Entity<Payments>(entity =>
         {
             entity.HasKey(e => e.PaymentId).HasName("PK__Payments__9B556A383CBA58B8");
-            entity.Property(e => e.EventId).IsUnicode(false);
 
             entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CreatedBy)
