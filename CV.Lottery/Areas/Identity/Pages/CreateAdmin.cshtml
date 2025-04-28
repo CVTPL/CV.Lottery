@@ -62,8 +62,8 @@
             <tr>
                 <th>User Name</th>
                 <th>Email</th>
-                <th>Role</th>
-                <th>Created On</th>
+              @*   <th>Role</th>
+                <th>Created On</th> *@
                 <th>Status</th>
             </tr>
         </thead>
@@ -72,13 +72,13 @@
             {
                 foreach (var user in Model.AllUsers)
                 {
-                    var aspUser = Model._userManager.Users.FirstOrDefault(u => u.Id == user.UserId);
-                    var roles = aspUser != null ? string.Join(", ", Model._userManager.GetRolesAsync(aspUser).Result) : "";
+                   @*  var aspUser = Model._userManager.Users.FirstOrDefault(u => u.Id == user.UserId);
+                    var roles = aspUser != null ? string.Join(", ", Model._userManager.GetRolesAsync(aspUser).Result) : ""; *@
                     <tr>
                         <td class="text-break">@user.UserName</td>
                         <td class="text-break">@user.Email</td>
-                        <td>@roles</td>
-                        <td>
+                        @* <td>@roles</td> *@
+                      @*   <td>
                             @if (user.CreatedOn.HasValue)
                             {
                                 <span class="js-utc-date" data-utc="@user.CreatedOn.Value.ToString("yyyy-MM-ddTHH:mm:ssZ")"></span>
@@ -87,7 +87,7 @@
                             {
                                 <span class="text-muted">-</span>
                             }
-                        </td>
+                        </td> *@
                         <td>
                             @if (user.IsActive == true)
                             {

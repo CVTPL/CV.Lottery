@@ -53,17 +53,8 @@ namespace CV.Lottery.Areas.Identity.Pages
             string eventName = luckyDraw?.EventName ?? "No Active Event";
             DateTime? winnerAnnouncementDate = luckyDraw?.EventDate;
 
-            // Fetch all LotteryUsers and filter in-memory by ASP.NET Identity roles
-            var allLotteryUsers = _lotteryContext.LotteryUsers.ToList();
-            var usersWithUserRole = new List<CV.Lottery.Models.LotteryUsers>();
-            foreach (var lotteryUser in allLotteryUsers)
-            {
-                var roles = await _userManager.GetRolesAsync(new IdentityUser { Id = lotteryUser.UserId });
-                if (roles.Contains("user"))
-                {
-                    usersWithUserRole.Add(lotteryUser);
-                }
-            }
+            // Fetch all LotteryUsers (no more joins or role checks)
+            var usersWithUserRole = _lotteryContext.LotteryUsers.ToList();
 
             // Search filter for admin
             if (!string.IsNullOrWhiteSpace(SearchUserName))

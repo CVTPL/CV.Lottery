@@ -116,7 +116,7 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
                         CreatedOn = DateTime.UtcNow,
                         IsActive = true,
                         EventId = eventId,
-                        Amount = PaymentAmount
+                        Amount = latestActiveEvent.Amount
                     };
                     _lotteryContext.Payments.Add(payment);
                     await _lotteryContext.SaveChangesAsync();

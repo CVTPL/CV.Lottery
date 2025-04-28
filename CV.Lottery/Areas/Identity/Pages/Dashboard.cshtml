@@ -60,7 +60,7 @@
                                                 <tr>
                                                     <td>@eventItem.EventName</td>
                                                     <td class="js-utc-date" data-utc="@eventItem.EventDate?.ToString("yyyy-MM-ddTHH:mm:ssZ")"></td>
-                                                    <td>@((decimal)eventItem.Amount).ToString("C")</td>
+                                                    <td>@((decimal)eventItem.Amount)</td>
                                                     <td>
                                                         @if (eventItem.IsActive == true)
                                                         {
