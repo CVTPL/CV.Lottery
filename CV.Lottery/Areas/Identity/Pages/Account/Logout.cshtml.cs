@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
@@ -25,7 +25,18 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPost(string returnUrl = null)
         {
+            // Clear session
+            HttpContext.Session.Clear();
+
+            // Sign out user (clears authentication cookies)
             await _signInManager.SignOutAsync();
+
+            // Optionally clear all cookies (for extra safety)
+            foreach (var cookie in Request.Cookies.Keys)
+            {
+                Response.Cookies.Delete(cookie);
+            }
+
             _logger.LogInformation("User logged out.");
             if (returnUrl != null)
             {
