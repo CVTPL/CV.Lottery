@@ -26,10 +26,10 @@
             @RenderBody()
         </main>
     </div>
-    @if (User.Identity != null && User.Identity.IsAuthenticated && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/login") && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/register") && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/forgotpassword") && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/forgotpasswordconfirmation") && !Context.Request.Path.Value.ToLower().Contains("/identity/account/payment"))
+    @* @if (User.Identity != null && User.Identity.IsAuthenticated && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/login") && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/register") && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/forgotpassword") && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/forgotpasswordconfirmation") && !Context.Request.Path.Value.ToLower().Contains("/identity/account/payment"))
     {
         @await Html.PartialAsync("_Footer")
-    }
+    } *@
     <footer class="footer mt-auto py-1 bg-light border-top" style="font-size: 0.95rem;">
         <div class="container text-center">
             <span class="text-muted">&copy; @DateTime.Now.Year Lottery. All rights reserved.</span>
