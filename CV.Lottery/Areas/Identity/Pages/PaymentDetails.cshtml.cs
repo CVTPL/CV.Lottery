@@ -47,9 +47,7 @@ namespace CV.Lottery.Areas.Identity.Pages
 
             // Fetch the latest active LuckyDrawMaster event for event name/date
             var luckyDraw = _lotteryContext.LuckyDrawMaster
-                .Where(e => e.IsActive == true)
-                .OrderByDescending(e => e.EventDate)
-                .FirstOrDefault();
+                .FirstOrDefault(e => e.IsActive == true && e.EventDate >= DateTime.UtcNow.Date);
             string eventName = luckyDraw?.EventName ?? "No Active Event";
             DateTime? winnerAnnouncementDate = luckyDraw?.EventDate;
 

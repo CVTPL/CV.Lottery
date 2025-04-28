@@ -19,8 +19,7 @@ namespace CV.Lottery.Areas.Identity.Pages
         {
             // Get top 1 active event (no OrderByDescending)
             var luckyDraw = _lotteryContext.LuckyDrawMaster
-                .Where(e => e.IsActive == true && e.EventDate >= DateTime.UtcNow.Date)
-                .FirstOrDefault();
+                .FirstOrDefault(e => e.IsActive == true && e.EventDate >= DateTime.UtcNow.Date);
             EventName = luckyDraw?.EventName ?? "No Active Event";
             Amount = luckyDraw?.Amount ?? 0;
         }
