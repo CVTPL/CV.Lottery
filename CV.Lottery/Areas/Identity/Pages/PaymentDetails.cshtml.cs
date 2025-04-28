@@ -53,8 +53,11 @@ namespace CV.Lottery.Areas.Identity.Pages
             string eventName = luckyDraw?.EventName ?? "No Active Event";
             DateTime? winnerAnnouncementDate = luckyDraw?.EventDate;
 
-            // Fetch all LotteryUsers (no more joins or role checks)
-            var usersWithUserRole = _lotteryContext.LotteryUsers.ToList();
+            // Fetch only users who have payments for the active event
+            var activeEventId = luckyDraw?.Id;
+            var usersWithUserRole = _lotteryContext.LotteryUsers
+                .Where(u => _lotteryContext.Payments.Any(p => p.UsersId == u.Id && p.EventId == activeEventId))
+                .ToList();
 
             // Search filter for admin
             if (!string.IsNullOrWhiteSpace(SearchUserName))
@@ -90,7 +93,7 @@ namespace CV.Lottery.Areas.Identity.Pages
             var users = usersWithUserRole
                 .Select(u => {
                     var latestPayment = _lotteryContext.Payments
-                        .Where(p => p.UsersId == u.Id)
+                        .Where(p => p.UsersId == u.Id && p.EventId == activeEventId)
                         .OrderByDescending(p => p.CreatedOn)
                         .FirstOrDefault();
                     return new DashboardModel.EventSummary
@@ -110,7 +113,7 @@ namespace CV.Lottery.Areas.Identity.Pages
             // Restore TotalUsers calculation
             TotalUsers = users.Count;
 
-            // Filter to only paid users
+            // Filter to only paid users for this event
             AllEvents = users.Where(e => e.PaymentStatus == "Paid").ToList();
 
             // Apply sorting to AllEvents (the grid)
