@@ -19,7 +19,7 @@
                         <div class="col text-center text-sm-start mb-2 mb-sm-0">
                             <h3 class="fw-bold mb-0">Payment Details</h3>
                             <div class="small mt-1">
-                                <span class="fw-semibold">Event Name:</span> <span class="text-primary">@allEvents.FirstOrDefault()?.EventName</span><br />
+                                <span class="fw-semibold">Event Name:</span> <span class="text-primary" style="max-width:220px; white-space:normal; word-break:break-word;">@allEvents.FirstOrDefault()?.EventName</span><br />
                                 <span class="fw-semibold">Winner Announcement:</span> <span class="text-success js-utc-date" data-utc="@allEvents.FirstOrDefault()?.WinnerAnnouncementDate.ToString("yyyy-MM-ddTHH:mm:ssZ")"></span>
                             </div>
                             <div class="col-auto ms-auto">

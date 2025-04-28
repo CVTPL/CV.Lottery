@@ -58,7 +58,9 @@
                                             {
                                                 var eventItem = item.Event;
                                                 <tr>
-                                                    <td>@eventItem.EventName</td>
+                                                    <td style="max-width:220px; white-space:normal; word-break:break-word;">
+            @eventItem.EventName
+        </td>
                                                     <td class="js-utc-date" data-utc="@eventItem.EventDate?.ToString("yyyy-MM-ddTHH:mm:ssZ")"></td>
                                                     <td>@((decimal)eventItem.Amount)</td>
                                                     <td>
