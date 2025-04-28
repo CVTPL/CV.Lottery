@@ -145,5 +145,12 @@
                 addAdminModal.show();
             }
         });
+        // Show loader on initial page load
+        document.addEventListener('DOMContentLoaded', function() {
+            showLoader();
+            window.addEventListener('load', function() {
+                setTimeout(hideLoader, 100); // Small delay for smoothness
+            });
+        });
     </script>
 }

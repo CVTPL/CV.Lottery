@@ -25,7 +25,7 @@
                             <div class="col-auto ms-auto">
                                 @if (User.IsInRole("admin"))
                                 {
-                                    <form method="get" class="d-flex justify-content-end" style="max-width: 350px; gap: 0.5rem;margin-top: 6px;">
+                                    <form method="get" class="d-flex justify-content-end" style="max-width: 350px; gap: 0.5rem;margin-top: 6px;" id="payment-details-search-form" data-loader="true">
                                         <div class="input-group">
                                             <input type="text" name="SearchUserName" class="form-control" placeholder="Search by username..." value="@Model.SearchUserName" />
                                             <button type="submit" class="btn btn-primary">Search</button>
@@ -43,7 +43,7 @@
                         </div>
                     </div>
                     <div class="table-responsive rounded-4 shadow-sm border bg-white p-3">
-                        <table class="table table-hover align-middle mb-0 w-100" style="min-width: 480px;">
+                        <table class="table table-hover align-middle mb-0 w-100" style="min-width: 480px;" id="payment-details-grid">
                             <thead class="table-light" style="background: #e3e6f0;">
                                 <tr>
                                     <th>
@@ -184,3 +184,15 @@
         });
     });
 </script>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Show loader on initial page load
+        document.addEventListener('DOMContentLoaded', function() {
+            showLoader();
+            window.addEventListener('load', function() {
+                setTimeout(hideLoader, 100); // Small delay for smoothness
+            });
+        });
+    </script>
+}

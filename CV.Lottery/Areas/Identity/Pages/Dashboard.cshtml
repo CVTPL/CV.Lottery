@@ -266,3 +266,16 @@ function showToast(message) {
     setTimeout(() => toast.remove(), 3000);
 }
 </script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Show loader on initial page load
+        document.addEventListener('DOMContentLoaded', function() {
+            showLoader();
+            window.addEventListener('load', function() {
+                setTimeout(hideLoader, 100); // Small delay for smoothness
+            });
+        });
+    </script>
+}

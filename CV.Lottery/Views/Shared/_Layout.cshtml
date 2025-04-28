@@ -15,8 +15,12 @@
     <link rel="stylesheet" href="~/css/custom-navbar.css" />
     <link rel="stylesheet" href="~/css/custom-profile.css" />
     <link rel="stylesheet" href="~/css/custom-logout.css" />
+    <link rel="stylesheet" href="~/css/loader.css" />
 </head>
 <body class="d-flex flex-column min-vh-100">
+    <div id="global-loader-overlay">
+        <div class="global-loader-spinner"></div>
+    </div>
     @if (User.Identity != null && User.Identity.IsAuthenticated && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/login") && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/register") && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/forgotpassword") && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/forgotpasswordconfirmation") && !Context.Request.Path.Value.ToLower().Contains("/identity/account/payment"))
     {
         @await Html.PartialAsync("_Navbar")
@@ -38,6 +42,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/loader.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
