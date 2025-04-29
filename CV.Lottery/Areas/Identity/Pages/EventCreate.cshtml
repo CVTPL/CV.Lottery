@@ -51,8 +51,16 @@
         document.addEventListener('DOMContentLoaded', function() {
             var eventForm = document.getElementById('eventCreateForm');
             if (eventForm) {
-                eventForm.addEventListener('submit', function() {
-                    if (typeof showLoader === 'function') showLoader();
+                eventForm.addEventListener('submit', function(e) {
+                    setTimeout(function() {
+                        debugger
+                        // If the event was not prevented (form is valid), show loader
+                        if (!e.defaultPrevented) {
+                            if (typeof showLoader === 'function') showLoader();
+                        } else {
+                            if (typeof hideLoader === 'function') hideLoader();
+                        }
+                    }, 0);
                 });
             }
             var cancelBtn = document.getElementById('cancelEventBtn');
