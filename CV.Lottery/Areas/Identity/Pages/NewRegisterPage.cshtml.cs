@@ -64,15 +64,20 @@ namespace CV.Lottery.Areas.Identity.Pages
 
             // Home is optional
             public string Home { get; set; }
+
+            // Event ID
+            public int EventId { get; set; }
         }
 
-        public void OnGet()
+        public void OnGet(int? eventId)
         {
             CountryList = GetCountryList();
             if (Input == null)
                 Input = new InputModel();
             if (string.IsNullOrEmpty(Input.Country))
                 Input.Country = "United States";
+            if (eventId.HasValue)
+                Input.EventId = eventId.Value;
         }
 
         private List<SelectListItem> GetCountryList()
@@ -112,8 +117,13 @@ namespace CV.Lottery.Areas.Identity.Pages
             var existingLotteryUser = _context.LotteryUsers.FirstOrDefault(u => u.Email.ToLower() == Input.Email.ToLower());
             if (existingLotteryUser != null)
             {
-                ModelState.AddModelError("Input.Email", "An account with this email already exists in the lottery system.");
-                return Page();
+                // Check if there is already a payment for this user and this event
+                var paymentExists = await _context.Payments.AnyAsync(p => p.UsersId == existingLotteryUser.Id && p.EventId == Input.EventId);
+                if (paymentExists)
+                {
+                    ModelState.AddModelError("Input.Email", "You have already registered for this event with this email.");
+                    return Page();
+                }
             }
 
             // Ensure optional fields are never null
@@ -135,7 +145,8 @@ namespace CV.Lottery.Areas.Identity.Pages
                 Input.State,
                 Input.ZipPostal,
                 Input.Mobile,
-                Input.Home
+                Input.Home,
+                Input.EventId
             };
             var registrationJson = System.Text.Json.JsonSerializer.Serialize(registrationData);
             HttpContext.Session.SetString("PendingRegistration", registrationJson);

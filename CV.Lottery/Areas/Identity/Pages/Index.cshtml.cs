@@ -9,6 +9,7 @@ namespace CV.Lottery.Areas.Identity.Pages
         private readonly LotteryContext _lotteryContext;
         public string EventName { get; set; }
         public decimal Amount { get; set; }
+        public int EventId { get; set; }
 
         public IndexModel(LotteryContext lotteryContext)
         {
@@ -22,6 +23,7 @@ namespace CV.Lottery.Areas.Identity.Pages
                 .FirstOrDefault(e => e.IsActive == true && e.EventDate >= DateTime.UtcNow.Date);
             EventName = luckyDraw?.EventName ?? "No Active Event";
             Amount = luckyDraw?.Amount ?? 0;
+            EventId = luckyDraw?.Id ?? 0;
         }
     }
 }

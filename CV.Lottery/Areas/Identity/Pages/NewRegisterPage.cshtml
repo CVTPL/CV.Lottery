@@ -18,6 +18,7 @@
                     </div>
                     <form method="post" autocomplete="off">
                         @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Input.EventId" />
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
                         <div class="mb-4">
                             <input asp-for="Input.Email" class="form-control form-control-lg mb-2" placeholder="Email" style="border-radius: 8px;" />

@@ -19,6 +19,7 @@
                     <span class="fw-semibold">Amount:</span> <span class="text-success">@Model.Amount.ToString("C")</span>
                 </div>
                 <form method="get" action="/Identity/NewRegisterPage">
+                    <input type="hidden" name="eventId" value="@Model.EventId" />
                     <button type="submit" class="btn btn-primary fw-semibold px-4 py-2" @(Model.EventName == "No Active Event" && Model.Amount == 0 ? "disabled" : "")>Select</button>
                 </form>
             </div>
