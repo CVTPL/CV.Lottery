@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using CV.Lottery.Models;
 using System.Configuration;
+using CV.Lottery.Services;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +32,9 @@ builder.Services.AddIdentityCore<IdentityUser>(options =>
     options.Password.RequireDigit = true;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+// Register the SMTP email sender
+builder.Services.AddTransient<IEmailSender, SmtpEmailSender>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
