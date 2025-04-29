@@ -31,6 +31,7 @@ namespace CV.Lottery.Areas.Identity.Pages
         public bool WinnerDeclared { get; set; }
         public string WinnerName { get; set; }
         public bool WinnerSaved { get; set; }
+        public bool IsEventActive { get; set; }
 
         public class PaidUserDto
         {
@@ -42,6 +43,9 @@ namespace CV.Lottery.Areas.Identity.Pages
         public async Task OnGetAsync(int eventId = 0, bool winnerSaved = false)
         {
             EventId = eventId;
+            // Fetch event and check if active
+            var evt = _lotteryContext.LuckyDrawMaster.FirstOrDefault(e => e.Id == eventId);
+            IsEventActive = evt?.IsActive == true;
             // Fetch paid payments for the selected event and join with LotteryUsers to get user details
             PaidUsers = (from p in _lotteryContext.Payments
                          join u in _lotteryContext.LotteryUsers on p.UsersId equals u.Id
