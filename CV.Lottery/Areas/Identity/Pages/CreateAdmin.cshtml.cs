@@ -118,7 +118,7 @@ namespace CV.Lottery.Areas.Identity.Pages
 
             // Create Identity user: set UserName/email logic as requested
             var user = new IdentityUser {
-                UserName = Input.Username, // Store the actual username!
+                UserName = Input.Email, // Store the actual username!
                 NormalizedUserName = Input.Username.ToUpperInvariant(),
                 Email = Input.Email,
                 EmailConfirmed = true
