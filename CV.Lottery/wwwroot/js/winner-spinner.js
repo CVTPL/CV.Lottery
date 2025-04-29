@@ -43,8 +43,22 @@ function startSpinner() {
     spinnerInterval = setInterval(() => {
         let names = [];
         for (let i = 0; i < displayCount; i++) {
-            let idx = (currentIndex + i) % participants.length;
-            names.push(`<div class='spinner-name${i === activeIdx ? ' active' : ''}' data-user-idx='${idx}'>${participants[idx].UserName}</div>`);
+            let idx;
+            if (participants.length >= displayCount) {
+                // Usual spinning logic: rotate through all participants
+                idx = (currentIndex + i) % participants.length;
+                names.push(`<div class='spinner-name${i === activeIdx ? ' active' : ''}' data-user-idx='${idx}'>${participants[idx].UserName}</div>`);
+            } else {
+                // For less than displayCount, fill top with empty, then actual names centered, then empty at bottom
+                if (i < Math.floor((displayCount - participants.length) / 2) || i >= Math.floor((displayCount - participants.length) / 2) + participants.length) {
+                    names.push(`<div class='spinner-name'>&nbsp;</div>`);
+                } else {
+                    // Center the actual participants
+                    idx = (currentIndex + i - Math.floor((displayCount - participants.length) / 2)) % participants.length;
+                    if (idx < 0) idx += participants.length;
+                    names.push(`<div class='spinner-name${i === activeIdx ? ' active' : ''}' data-user-idx='${idx}'>${participants[idx].UserName}</div>`);
+                }
+            }
         }
         spinnerList.innerHTML = names.join('');
         currentIndex = (currentIndex + 1) % participants.length;
