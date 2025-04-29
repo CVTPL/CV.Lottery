@@ -1,0 +1,21 @@
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@if (!User.IsInRole("admin"))
+{
+    <header style="background: #051145; padding: 12px 0; margin-bottom: 24px;">
+        <div class="container">
+            <div style="display: flex; align-items: center; gap: 24px;">
+                <img src="/Image/convention_logo-998x1024.png" alt="FeTNA Logo" width="70px">
+                <div>
+                    <div style="font-family: 'Playfair Display', serif; font-size: 32px; font-weight: bold; color: #fff;">
+                        FeTNA Convention
+                    </div>
+                    <div style="font-family: 'Montserrat', sans-serif; font-size: 14px; color: #fff;">
+                        FeTNA 38th Tamil Convention – 2025
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+}

@@ -24,6 +24,7 @@
     @{
         var isAdmin = User.IsInRole("admin");
     }
+    @await Html.PartialAsync("_Header")
     @if (User.Identity != null && User.Identity.IsAuthenticated && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/login") && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/register") && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/forgotpassword") && !Context.Request.Path.Value.ToLower().StartsWith("/identity/account/forgotpasswordconfirmation") && !Context.Request.Path.Value.ToLower().Contains("/identity/account/payment"))
     {
         @await Html.PartialAsync("_Navbar", new { isAdmin = isAdmin })
