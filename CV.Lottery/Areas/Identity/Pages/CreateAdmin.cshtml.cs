@@ -55,8 +55,15 @@ namespace CV.Lottery.Areas.Identity.Pages
 
         public async Task<IActionResult> OnGetAsync(int pageNumber = 1)
         {
-            // Get all users (including admins and users)
-            var usersQuery = _lotteryContext.LotteryUsers.OrderByDescending(u => u.Id);
+            // Get all admin user IDs from Identity
+            var adminUsers = await _userManager.GetUsersInRoleAsync("admin");
+            var adminUserIds = adminUsers.Select(u => u.Id).ToList();
+
+            // Filter LotteryUsers to only include admins
+            var usersQuery = _lotteryContext.LotteryUsers
+                .Where(u => adminUserIds.Contains(u.UserId))
+                .OrderByDescending(u => u.Id);
+
             int totalUsers = await usersQuery.CountAsync();
             PageNumber = pageNumber;
             TotalPages = (int)Math.Ceiling(totalUsers / (double)PageSize);
