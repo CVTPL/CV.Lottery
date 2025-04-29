@@ -84,6 +84,7 @@
                                                             <input type="hidden" name="eventId" value="@eventItem.Id" />
                                                             <button type="submit" class="btn btn-sm btn-primary select-winner-btn" @(eventItem.IsActive != true ? "disabled data-inactive='true'" : "")>Select Winner</button>
                                                         </form>
+                                                        <a href="/Identity/EditEvent?eventId=@eventItem.Id" class="btn btn-sm btn-warning ms-2 @(eventItem.IsActive != true ? "disabled" : "")" @(eventItem.IsActive != true ? "tabindex='-1' aria-disabled='true'" : "")>Edit event</a>
                                                     </td>
                                                 </tr>
                                             }
