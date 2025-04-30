@@ -59,10 +59,18 @@ namespace CV.Lottery.Areas.Identity.Pages
             var adminUsers = await _userManager.GetUsersInRoleAsync("admin");
             var adminUserIds = adminUsers.Select(u => u.Id).ToList();
 
-            // Filter LotteryUsers to only include admins
-            var usersQuery = _lotteryContext.LotteryUsers
-                .Where(u => adminUserIds.Contains(u.UserId))
-                .OrderByDescending(u => u.Id);
+            // Filter AspNetUsers to only include admins and get username from AspNetUserClaims
+            var usersQuery = from user in _lotteryContext.AspNetUsers
+                             join claim in _lotteryContext.AspNetUserClaims
+                                 on user.Id equals claim.UserId into userClaims
+                             from claim in userClaims.Where(c => c.ClaimType == "display_username").DefaultIfEmpty()
+                             where adminUserIds.Contains(user.Id)
+                             orderby user.Id descending
+                             select new CV.Lottery.Models.LotteryUsers {
+                                 UserId = user.Id,
+                                 UserName = claim != null ? claim.ClaimValue : user.Email, // fallback to Email if claim missing
+                                 Email = user.Email
+                             };
 
             int totalUsers = await usersQuery.CountAsync();
             PageNumber = pageNumber;
@@ -142,18 +150,18 @@ namespace CV.Lottery.Areas.Identity.Pages
                 await _userManager.AddClaimAsync(user, displayUsernameClaim);
 
                 // Save to LotteryUsers table as well
-                var aspNetUserId = user.Id; // This is the Id from AspNetUsers table
-                var lotteryUser = new CV.Lottery.Models.LotteryUsers
-                {
-                    UserId = aspNetUserId, // Store AspNetUsers.Id
-                    Email = Input.Email,
-                    UserName = Input.Username, // Store username in LotteryUsers.UserName
-                    CreatedBy = aspNetUserId, // Store AspNetUsers.Id
-                    CreatedOn = DateTime.UtcNow,
-                    IsActive = true
-                };
-                _lotteryContext.LotteryUsers.Add(lotteryUser);
-                await _lotteryContext.SaveChangesAsync();
+                //var aspNetUserId = user.Id; // This is the Id from AspNetUsers table
+                //var lotteryUser = new CV.Lottery.Models.LotteryUsers
+                //{
+                //    UserId = aspNetUserId, // Store AspNetUsers.Id
+                //    Email = Input.Email,
+                //    UserName = Input.Username, // Store username in LotteryUsers.UserName
+                //    CreatedBy = aspNetUserId, // Store AspNetUsers.Id
+                //    CreatedOn = DateTime.UtcNow,
+                //    IsActive = true
+                //};
+                //_lotteryContext.LotteryUsers.Add(lotteryUser);
+                //await _lotteryContext.SaveChangesAsync();
 
                 TempData["AdminCreated"] = "Admin user created successfully.";
                 return RedirectToPage("/CreateAdmin");
