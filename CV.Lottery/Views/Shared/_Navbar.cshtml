@@ -11,7 +11,7 @@
     var profileUsername = !string.IsNullOrEmpty(displayUsername) ? displayUsername : userName;
     var path = Context.Request.Path.ToString().ToLower();
     var isDashboardActive = path == "/dashboard";
-    var isPaymentDetailsActive = path == "/identity/paymentdetails";
+    var isPaymentDetailsActive = path == "/paymentdetails";
 }
 @if (SignInManager.IsSignedIn(User) && User != null && User.Identity != null && User.Identity.IsAuthenticated)
 {
@@ -42,10 +42,10 @@
                     @if (User.IsInRole("admin"))
                     {
                         <li class="nav-item">
-                            <a class="nav-link @(isPaymentDetailsActive ? "active text-warning fw-bold" : "")" href="/Identity/PaymentDetails">Payment Details</a>
+                            <a class="nav-link @(isPaymentDetailsActive ? "active text-warning fw-bold" : "")" href="/paymentdetails">Payment Details</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link @(path == "/identity/createadmin" ? "active text-warning fw-bold" : "")" href="/Identity/CreateAdmin">
+                            <a class="nav-link @(path == "/createadmin" ? "active text-warning fw-bold" : "")" href="/createadmin">
                                 Manage User
                             </a>
                         </li>
@@ -64,7 +64,7 @@
                                     </div>
                                 </div>
                                 <div class="px-3 pb-2">
-                                    <form method="post" asp-area="Identity" asp-page="/Account/Logout" class="w-100">
+                                    <form method="post" action="/logout" class="w-100">
                                         @Html.AntiForgeryToken()
                                         <button type="submit" class="btn btn-outline-danger w-100">Logout</button>
                                     </form>
