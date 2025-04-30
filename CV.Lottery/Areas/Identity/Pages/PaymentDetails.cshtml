@@ -27,8 +27,8 @@
                                 {
                                     <form method="get" class="d-flex justify-content-end" style="max-width: 350px; gap: 0.5rem;margin-top: 6px;" id="payment-details-search-form" data-loader="true">
                                         <div class="input-group">
-                                            <input type="text" name="SearchUserName" class="form-control" placeholder="Search by username..." value="@Model.SearchUserName" />
-                                            <button type="submit" class="btn btn-primary">Search</button>
+                                            <input type="text" name="SearchUserName" class="form-control" placeholder="Search by username..." value="@Model.SearchUserName" id="searchUserNameInput" />
+                                            <button type="submit" class="btn btn-primary" id="searchBtn" disabled>Search</button>
                                         </div>
                                         <a href="@Url.Page(null)" class="btn btn-primary">Clear</a>
                                     </form>
@@ -159,6 +159,14 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(function () {
+        // Enable/disable search button based on input value
+        function toggleSearchBtn() {
+            var val = $('#searchUserNameInput').val();
+            $('#searchBtn').prop('disabled', !val.trim());
+        }
+        $('#searchUserNameInput').on('input', toggleSearchBtn);
+        toggleSearchBtn(); // Set initial state
+
         $('.js-utc-date').each(function () {
             var utc = $(this).data('utc');
             if (utc) {
