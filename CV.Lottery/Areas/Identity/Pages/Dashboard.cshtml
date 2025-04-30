@@ -33,7 +33,7 @@
                                 <h3 class="fw-bold mb-0">Dashboard</h3>
                             </div>
                             <div class="col-12 col-lg-6 d-flex justify-content-lg-end gap-2">
-                                <a href="/Identity/EventCreate" class="btn btn-success d-inline-flex align-items-center px-4 py-2 shadow-sm add-event-btn" style="border-radius: 12px; font-weight: 600; font-size: 1.05rem;">
+                                <a href="#" class="btn btn-success d-inline-flex align-items-center px-4 py-2 shadow-sm add-event-btn" data-bs-toggle="modal" data-bs-target="#addEventModal" style="border-radius: 12px; font-weight: 600; font-size: 1.05rem;">
                                     <i class="bi bi-calendar-plus me-2"></i> <span class="d-inline">Add Event</span>
                                 </a>
                             </div>
@@ -84,7 +84,7 @@
                                                             <input type="hidden" name="eventId" value="@eventItem.Id" />
                                                             <button type="submit" class="btn btn-sm btn-primary select-winner-btn" @(eventItem.IsActive != true ? "disabled data-inactive='true'" : "")>Select Winner</button>
                                                         </form>
-                                                        <a href="/Identity/EditEvent?eventId=@eventItem.Id" class="btn btn-sm btn-warning ms-2">Edit event</a>
+                                                        <a href="#" class="btn btn-sm btn-warning ms-2 edit-event-btn" data-event-id="@eventItem.Id">Edit event</a>
                                                     </td>
                                                 </tr>
                                             }
@@ -211,6 +211,15 @@
     </div>
 </main>
 
+<!-- Add Event Modal -->
+<div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" id="event-modal-content">
+      <!-- Content loaded via AJAX -->
+    </div>
+  </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     // Use toLocaleString to format UTC dates in browser's local time
@@ -244,6 +253,44 @@
             year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true
         };
         $('#browserTimeDisplay').text(now.toLocaleString(undefined, options));
+    });
+
+    // Add/Edit Event Modal AJAX logic
+    $(document).ready(function () {
+        $('.add-event-btn').on('click', function (e) {
+            e.preventDefault();
+            $('#event-modal-content').html('<div class="modal-body text-center py-5"><div class="spinner-border text-primary" role="status"></div></div>');
+            $.get('/Identity/EventCreate?handler=Partial', function (html) {
+                $('#event-modal-content').html(html);
+            });
+            $('#addEventModal').modal('show');
+        });
+        $(document).on('click', '.edit-event-btn', function (e) {
+            e.preventDefault();
+            var eventId = $(this).data('event-id');
+            $('#event-modal-content').html('<div class="modal-body text-center py-5"><div class="spinner-border text-primary" role="status"></div></div>');
+            $.get('/Identity/EventCreate?handler=Partial&eventId=' + eventId, function (html) {
+                $('#event-modal-content').html(html);
+            });
+            $('#addEventModal').modal('show');
+        });
+        // Delegate form submission for dynamically loaded content
+        $(document).on('submit', '#eventCreateForm', function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var data = form.serialize();
+            var eventId = form.find('[name="EventId"]').val();
+            var postUrl = '/Identity/EventCreate?handler=Partial';
+            if (eventId) postUrl += '&eventId=' + eventId;
+            $.post(postUrl, data, function (result) {
+                if (result.success) {
+                    $('#addEventModal').modal('hide');
+                    location.reload();
+                } else {
+                    $('#event-modal-content').html(result.html || result);
+                }
+            });
+        });
     });
 </script>
 

@@ -36,6 +36,9 @@ namespace CV.Lottery.Areas.Identity.Pages
         [DataType(DataType.Date)]
         public DateTime WinnerAnnouncementDate { get; set; }
 
+        [BindProperty]
+        public int? EventId { get; set; }
+
         public void OnGet()
         {
             // Set default value for datepicker to current date
@@ -43,6 +46,27 @@ namespace CV.Lottery.Areas.Identity.Pages
             {
                 WinnerAnnouncementDate = DateTime.UtcNow.Date;
             }
+        }
+
+        // Handler for partial view (AJAX modal)
+        public async Task<IActionResult> OnGetPartialAsync(int? eventId = null)
+        {
+            if (eventId.HasValue)
+            {
+                var evt = await _context.LuckyDrawMaster.FindAsync(eventId.Value);
+                if (evt != null)
+                {
+                    EventId = evt.Id;
+                    EventName = evt.EventName;
+                    Amount = (decimal)evt.Amount;
+                    WinnerAnnouncementDate = (DateTime)evt.EventDate;
+                }
+            }
+            else if (WinnerAnnouncementDate == default(DateTime))
+            {
+                WinnerAnnouncementDate = DateTime.UtcNow.Date;
+            }
+            return Partial("_EventCreatePartial", this);
         }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -77,6 +101,48 @@ namespace CV.Lottery.Areas.Identity.Pages
             _context.LuckyDrawMaster.Add(luckyDraw);
             await _context.SaveChangesAsync();
             return RedirectToPage("/Dashboard");
+        }
+
+        // Handler for AJAX modal POST
+        public async Task<IActionResult> OnPostPartialAsync(int? eventId = null)
+        {
+            if (!ModelState.IsValid)
+            {
+                // Return the partial view with validation errors
+                return Partial("_EventCreatePartial", this);
+            }
+
+            LuckyDrawMaster luckyDraw;
+            if (eventId.HasValue)
+            {
+                luckyDraw = await _context.LuckyDrawMaster.FindAsync(eventId.Value);
+                if (luckyDraw == null)
+                {
+                    return new JsonResult(new { success = false, message = "Event not found." });
+                }
+                luckyDraw.EventName = EventName;
+                luckyDraw.Amount = Amount;
+                luckyDraw.EventDate = WinnerAnnouncementDate;
+                luckyDraw.UpdatedOn = DateTime.UtcNow;
+            }
+            else
+            {
+                var aspUser = await _userManager.GetUserAsync(User);
+                var lotteryUser = _context.LotteryUsers.FirstOrDefault(u => u.UserId == aspUser.Id);
+                var adminUserId = lotteryUser?.Id;
+                luckyDraw = new LuckyDrawMaster
+                {
+                    EventName = EventName,
+                    Amount = Amount,
+                    EventDate = WinnerAnnouncementDate,
+                    IsActive = true,
+                    CreatedOn = DateTime.UtcNow,
+                    CreatedBy = adminUserId?.ToString()
+                };
+                _context.LuckyDrawMaster.Add(luckyDraw);
+            }
+            await _context.SaveChangesAsync();
+            return new JsonResult(new { success = true });
         }
     }
 }
