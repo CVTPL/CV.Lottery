@@ -84,20 +84,9 @@
                         <td class="text-break">@user.UserName</td>
                         <td class="text-break">@user.Email</td>
                         <td class="text-break">
-                            <div class="dropdown">
-                                <button class="btn btn-link p-0 m-0 align-baseline" type="button" id="dropdownMenuButton-@user.Email" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-three-dots-vertical"></i>
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-@user.Email">
-                                    <li>
-                                        <form method="post" asp-page-handler="SendResetLink" asp-route-email="@user.Email" style="display:inline">
-                                            <button type="submit" class="dropdown-item">
-                                                 Reset Password
-                                            </button>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </div>
+                            <form method="post" asp-page-handler="SendResetLink" asp-route-email="@user.Email" style="display:inline">
+                                <button type="submit" class="btn btn-primary">Reset Password</button>
+                            </form>
                         </td>
                     </tr>
                 }
