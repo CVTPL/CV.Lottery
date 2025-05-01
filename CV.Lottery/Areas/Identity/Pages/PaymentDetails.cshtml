@@ -8,6 +8,17 @@
     var totalPages = Model.TotalPages;
     var allEvents = Model.AllEvents;
 }
+<style type="text/css">
+    .active > .page-link, .page-link.active
+    {
+        background-color: #051145;
+        border-color: #051145;
+    }
+
+    .page-link{
+        color:#051145;
+    }
+</style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 <main class="flex-grow-1 d-flex flex-column  bg-light" style="background: transparent; min-height: calc(100vh - 150px);">
     <div class="container-fluid flex-grow-1 d-flex flex-column justify-content-start align-items-center px-1 px-sm-3 px-md-4 py-3 py-md-4" style="padding-bottom: 24px;">
@@ -38,7 +49,7 @@
                         <div class="col-12 col-md-4 col-lg-2">
                             <div class="card shadow-sm border-0 rounded-4 text-center py-3 bg-white ">
                                 <div class="fw-semibold text-muted mb-1">Total Users</div>
-                                <div class="display-6 fw-bold text-primary">@Model.TotalUsers</div>
+                                <div class="display-6 fw-bold" style="color: #051145;">@Model.TotalUsers</div>
                             </div>
                         </div>
                     </div>
@@ -47,7 +58,9 @@
                             <thead class="table-light" style="background: #e3e6f0;">
                                 <tr>
                                     <th>
-                                        <a asp-page="PaymentDetails" asp-route-SortColumn="UserName" asp-route-SortDirection="@(Model.SortColumn == "UserName" && Model.SortDirection == "asc" ? "desc" : "asc")" asp-route-SearchUserName="@Model.SearchUserName">
+                                        <a asp-page="PaymentDetails" asp-route-SortColumn="UserName" 
+                                        asp-route-SortDirection="@(Model.SortColumn == "UserName" && Model.SortDirection == "asc" ? "desc" : "asc")"
+                                           asp-route-SearchUserName="@Model.SearchUserName" style="color: #051145;">
                                             User Name
                                             @if (Model.SortColumn == "UserName") {
                                                 <span class="@(Model.SortDirection == "asc" ? "bi bi-caret-up-fill" : "bi bi-caret-down-fill")"></span>
@@ -55,7 +68,9 @@
                                         </a>
                                     </th>
                                     <th>
-                                        <a asp-page="PaymentDetails" asp-route-SortColumn="Email" asp-route-SortDirection="@(Model.SortColumn == "Email" && Model.SortDirection == "asc" ? "desc" : "asc")" asp-route-SearchUserName="@Model.SearchUserName">
+                                        <a asp-page="PaymentDetails" asp-route-SortColumn="Email" 
+                                        asp-route-SortDirection="@(Model.SortColumn == "Email" && Model.SortDirection == "asc" ? "desc" : "asc")"
+                                           asp-route-SearchUserName="@Model.SearchUserName" style="color: #051145;">
                                             Email
                                             @if (Model.SortColumn == "Email") {
                                                 <span class="@(Model.SortDirection == "asc" ? "bi bi-caret-up-fill" : "bi bi-caret-down-fill")"></span>
@@ -63,7 +78,9 @@
                                         </a>
                                     </th>
                                     <th>
-                                        <a asp-page="PaymentDetails" asp-route-SortColumn="Amount" asp-route-SortDirection="@(Model.SortColumn == "Amount" && Model.SortDirection == "asc" ? "desc" : "asc")" asp-route-SearchUserName="@Model.SearchUserName">
+                                        <a asp-page="PaymentDetails" asp-route-SortColumn="Amount" 
+                                        asp-route-SortDirection="@(Model.SortColumn == "Amount" && Model.SortDirection == "asc" ? "desc" : "asc")"
+                                           asp-route-SearchUserName="@Model.SearchUserName" style="color: #051145;">
                                             Amount ($)
                                             @if (Model.SortColumn == "Amount") {
                                                 <span class="@(Model.SortDirection == "asc" ? "bi bi-caret-up-fill" : "bi bi-caret-down-fill")"></span>
@@ -71,7 +88,9 @@
                                         </a>
                                     </th>
                                     <th>
-                                        <a asp-page="PaymentDetails" asp-route-SortColumn="PaymentStatus" asp-route-SortDirection="@(Model.SortColumn == "PaymentStatus" && Model.SortDirection == "asc" ? "desc" : "asc")" asp-route-SearchUserName="@Model.SearchUserName">
+                                        <a asp-page="PaymentDetails" asp-route-SortColumn="PaymentStatus" 
+                                        asp-route-SortDirection="@(Model.SortColumn == "PaymentStatus" && Model.SortDirection == "asc" ? "desc" : "asc")"
+                                           asp-route-SearchUserName="@Model.SearchUserName" style="color: #051145;">
                                             Payment Status
                                             @if (Model.SortColumn == "PaymentStatus") {
                                                 <span class="@(Model.SortDirection == "asc" ? "bi bi-caret-up-fill" : "bi bi-caret-down-fill")"></span>
@@ -79,7 +98,9 @@
                                         </a>
                                     </th>
                                     <th>
-                                        <a asp-page="PaymentDetails" asp-route-SortColumn="PaidOn" asp-route-SortDirection="@(Model.SortColumn == "PaidOn" && Model.SortDirection == "asc" ? "desc" : "asc")" asp-route-SearchUserName="@Model.SearchUserName">
+                                        <a asp-page="PaymentDetails" asp-route-SortColumn="PaidOn" 
+                                        asp-route-SortDirection="@(Model.SortColumn == "PaidOn" && Model.SortDirection == "asc" ? "desc" : "asc")"
+                                           asp-route-SearchUserName="@Model.SearchUserName" style="color: #051145;">
                                             Paid On
                                             @if (Model.SortColumn == "PaidOn") {
                                                 <span class="@(Model.SortDirection == "asc" ? "bi bi-caret-up-fill" : "bi bi-caret-down-fill")"></span>
