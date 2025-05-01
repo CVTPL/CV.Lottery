@@ -59,6 +59,7 @@ namespace CV.Lottery.Areas.Identity.Pages
             public decimal Amount { get; set; }
             public int UserId { get; set; }
             public string Email { get; set; } // Added for PaymentDetails grid
+            public string PhoneNumber { get; set; } // Added for PaymentDetails grid
         }
 
         public class PaymentDetail
@@ -176,7 +177,8 @@ namespace CV.Lottery.Areas.Identity.Pages
                         Amount = (x.Payment != null) ? (decimal)x.Payment.Amount : 0,
                         UserId = x.User.Id,
                         PaidOn = x.PaidOn ?? DateTime.MinValue,
-                        Email = x.User.Email // Added for PaymentDetails grid
+                        Email = x.User.Email, // Added for PaymentDetails grid
+                        PhoneNumber = x.User.Mobile // Use Mobile for phone number
                     })
                     .OrderByDescending(e => e.UserId)
                     .ToList();

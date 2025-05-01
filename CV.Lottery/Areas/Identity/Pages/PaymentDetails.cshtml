@@ -78,6 +78,16 @@
                                         </a>
                                     </th>
                                     <th>
+                                        <a asp-page="PaymentDetails" asp-route-SortColumn="PhoneNumber"
+                                           asp-route-SortDirection="@(Model.SortColumn == "PhoneNumber" && Model.SortDirection == "asc" ? "desc" : "asc")"
+                                           asp-route-SearchUserName="@Model.SearchUserName" style="color: #051145;">
+                                            Phone Number
+                                            @if (Model.SortColumn == "PhoneNumber") {
+                                                <span class="@(Model.SortDirection == "asc" ? "bi bi-caret-up-fill" : "bi bi-caret-down-fill")"></span>
+                                            }
+                                        </a>
+                                    </th>
+                                    <th>
                                         <a asp-page="PaymentDetails" asp-route-SortColumn="Amount" 
                                         asp-route-SortDirection="@(Model.SortColumn == "Amount" && Model.SortDirection == "asc" ? "desc" : "asc")"
                                            asp-route-SearchUserName="@Model.SearchUserName" style="color: #051145;">
@@ -87,7 +97,7 @@
                                             }
                                         </a>
                                     </th>
-                                    <th>
+                                   @*  <th>
                                         <a asp-page="PaymentDetails" asp-route-SortColumn="PaymentStatus" 
                                         asp-route-SortDirection="@(Model.SortColumn == "PaymentStatus" && Model.SortDirection == "asc" ? "desc" : "asc")"
                                            asp-route-SearchUserName="@Model.SearchUserName" style="color: #051145;">
@@ -96,7 +106,8 @@
                                                 <span class="@(Model.SortDirection == "asc" ? "bi bi-caret-up-fill" : "bi bi-caret-down-fill")"></span>
                                             }
                                         </a>
-                                    </th>
+                                    </th> *@
+
                                     <th>
                                         <a asp-page="PaymentDetails" asp-route-SortColumn="PaidOn" 
                                         asp-route-SortDirection="@(Model.SortColumn == "PaidOn" && Model.SortDirection == "asc" ? "desc" : "asc")"
@@ -117,8 +128,9 @@
                                         <tr>
                                             <td class="text-break">@evt.UserName</td>
                                             <td class="text-break">@evt.Email</td>
+                                            <td class="text-break">@evt.PhoneNumber</td>
                                             <td class="fw-semibold text-success">$@evt.Amount</td>
-                                            <td>
+                                           @*  <td>
                                                 @if (evt.PaymentStatus == "Paid") {
                                                     <span class="badge bg-success">Paid</span>
                                                 } else if (evt.PaymentStatus == "Pending") {
@@ -128,7 +140,7 @@
                                                 } else {
                                                     <span class="badge bg-secondary">Not Paid</span>
                                                 }
-                                            </td>
+                                            </td> *@
                                             <td>
                                                 @if (evt.PaidOn != null && evt.PaidOn != DateTime.MinValue)
                                                 {

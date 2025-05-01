@@ -100,7 +100,8 @@ namespace CV.Lottery.Areas.Identity.Pages
                         PaymentStatus = latestPayment?.PaymentStatus ?? "Not Paid",
                         Amount = latestPayment?.Amount ?? 0,
                         UserId = u.Id,
-                        Email = u.Email // Add Email property
+                        Email = u.Email, // Add Email property
+                        PhoneNumber = u.Mobile // Use Mobile property for phone number
                     };
                 })
                 .ToList();
@@ -128,16 +129,21 @@ namespace CV.Lottery.Areas.Identity.Pages
                             ? AllEvents.OrderBy(e => e.Email)
                             : AllEvents.OrderByDescending(e => e.Email);
                         break;
+                    case "phonenumber":
+                        sortedEvents = ascending
+                            ? AllEvents.OrderBy(e => e.PhoneNumber)
+                            : AllEvents.OrderByDescending(e => e.PhoneNumber);
+                        break;
                     case "amount":
                         sortedEvents = ascending
                             ? AllEvents.OrderBy(e => e.Amount)
                             : AllEvents.OrderByDescending(e => e.Amount);
                         break;
-                    case "paymentstatus":
-                        sortedEvents = ascending
-                            ? AllEvents.OrderBy(e => e.PaymentStatus)
-                            : AllEvents.OrderByDescending(e => e.PaymentStatus);
-                        break;
+                    //case "paymentstatus":
+                    //    sortedEvents = ascending
+                    //        ? AllEvents.OrderBy(e => e.PaymentStatus)
+                    //        : AllEvents.OrderByDescending(e => e.PaymentStatus);
+                    //    break;
                     case "paidon":
                         sortedEvents = ascending
                             ? AllEvents.OrderBy(e => e.PaidOn)
