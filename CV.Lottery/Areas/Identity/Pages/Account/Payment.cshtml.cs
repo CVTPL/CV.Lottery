@@ -9,6 +9,7 @@ using CV.Lottery.Context;
 using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace CV.Lottery.Areas.Identity.Pages.Account
 {
@@ -17,6 +18,7 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
         private readonly IConfiguration _config;
         private readonly LotteryContext _lotteryContext;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IEmailSender _emailSender;
         public bool PaymentSuccess { get; set; }
         public bool PaymentFailed { get; set; }
         public int AttemptCount { get; set; }
@@ -24,11 +26,12 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
         public string UserId { get; set; }
         public decimal PaymentAmount { get; set; }
 
-        public PaymentModel(IConfiguration config, LotteryContext lotteryContext, UserManager<IdentityUser> userManager)
+        public PaymentModel(IConfiguration config, LotteryContext lotteryContext, UserManager<IdentityUser> userManager, IEmailSender emailSender)
         {
             _config = config;
             _lotteryContext = lotteryContext;
             _userManager = userManager;
+            _emailSender = emailSender;
         }
 
         public void OnGet(string userId)
@@ -122,6 +125,11 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
                     await _lotteryContext.SaveChangesAsync();
                     // Remove registration from session
                     HttpContext.Session.Remove("PendingRegistration");
+
+                    // --- NEW: Send payment success email ---
+                    var paymentEmailSubject = "Payment Confirmation";
+                    var paymentEmailBody = $"Dear {lotteryUser.FirstName},\n<br/><br/> Thank you for your payment for the <b>{latestActiveEvent.EventName} event</b>.\n<br/><br/> We have successfully received your payment. Here are the details of your transaction:\n\n<ul> <li><b>Transaction ID:</b> {paymentResult.transactionId}</li> <li><b>Amount Paid:</b> {latestActiveEvent.Amount}</li> </ul>\nThe winner for this event will be announced on <b>{latestActiveEvent.EventDate}</b>.\n<br/><br/> If you have any questions or need assistance, feel free to contact our support team.\n<br/><br/> Best regards,\n<br/> Lottery Team";
+                    await _emailSender.SendEmailAsync(lotteryUser.Email, paymentEmailSubject, paymentEmailBody);
                 }
                 return new JsonResult(new { success = true, redirect = Url.Page("/Index") });
             }
