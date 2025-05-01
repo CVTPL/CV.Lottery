@@ -59,8 +59,8 @@
                                                 var eventItem = item.Event;
                                                 <tr>
                                                     <td style="max-width:220px; white-space:normal; word-break:break-word;">
-            @eventItem.EventName
-        </td>
+                                                        @eventItem.EventName
+                                                    </td>
                                                     <td class="js-utc-date" data-utc="@eventItem.EventDate?.ToString("yyyy-MM-ddTHH:mm:ssZ")"></td>
                                                     <td>@((decimal)eventItem.Amount)</td>
                                                     <td>
@@ -84,7 +84,12 @@
                                                             <input type="hidden" name="eventId" value="@eventItem.Id" />
                                                             <button type="submit" class="btn btn-sm btn-primary select-winner-btn" @(eventItem.IsActive != true ? "disabled data-inactive='true'" : "")>Select Winner</button>
                                                         </form>
-                                                        <a href="#" class="btn btn-sm btn-warning ms-2 edit-event-btn" data-event-id="@eventItem.Id">Edit event</a>
+                                                        @* <a href="#" class="btn btn-sm btn-warning ms-2 edit-event-btn" data-event-id="@eventItem.Id" @(eventItem.EventDate < DateTime.UtcNow ? "disabled" : "")>Edit event</a> *@
+                                                        <button type="button" class="btn btn-sm btn-warning ms-2 edit-event-btn"
+                                                                data-event-id="@eventItem.Id"
+                                                        @(eventItem.EventDate < DateTime.UtcNow ? "disabled title='Cannot edit past events'" : "")>
+                                                            Edit event
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             }
