@@ -80,16 +80,7 @@ namespace CV.Lottery.Areas.Identity.Pages
 
         public async Task<IActionResult> OnGetAsync(int pageNumber = 1)
         {
-            if (User == null || User.Identity == null || !User.Identity.IsAuthenticated)
-            {
-                // Redirect to login if user is not authenticated
-                return RedirectToPage("/Account/Login");
-            }
             var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return RedirectToPage("/Account/Login");
-            }
             var roles = await _userManager.GetRolesAsync(user);
             IsAdmin = roles.Contains("admin");
 

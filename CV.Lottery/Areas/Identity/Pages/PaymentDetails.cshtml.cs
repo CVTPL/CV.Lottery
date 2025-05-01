@@ -40,10 +40,7 @@ namespace CV.Lottery.Areas.Identity.Pages
 
         public async Task<IActionResult> OnGetAsync(int pageNumber = 1)
         {
-            if (User == null || User.Identity == null || !User.Identity.IsAuthenticated)
-            {
-                return RedirectToPage("/Account/Login");
-            }
+            // Removed manual authentication check to allow [Authorize] and Identity middleware to handle redirects
 
             // Fetch the latest active LuckyDrawMaster event for event name/date
             var luckyDraw = _lotteryContext.LuckyDrawMaster

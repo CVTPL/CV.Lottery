@@ -33,6 +33,13 @@ builder.Services.AddIdentityCore<IdentityUser>(options =>
 })
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+// Configure Identity cookie login path to custom /login route
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/login";
+    // You can also set options.LogoutPath and options.AccessDeniedPath if you have custom routes
+});
+
 // Register the SMTP email sender
 builder.Services.AddTransient<IEmailSender, SmtpEmailSender>();
 
@@ -59,7 +66,8 @@ using (var scope = app.Services.CreateScope())
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseExceptionHandler("/Error");
+    app.UseStatusCodePagesWithReExecute("/Error", "?statusCode={0}");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }

@@ -1,10 +1,28 @@
-﻿@model ErrorViewModel
+@model ErrorViewModel
 @{
     ViewData["Title"] = "Error";
+    var statusCode = Context.Request.Query["statusCode"].FirstOrDefault();
 }
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
+<div class="container mt-5">
+    <div class="alert alert-danger">
+        <h1 class="display-4">Oops!</h1>
+        <p class="lead">Sorry, an error occurred while processing your request.</p>
+        @if (!string.IsNullOrEmpty(statusCode))
+        {
+            <p><strong>Status Code:</strong> @statusCode</p>
+            if (statusCode == "404")
+            {
+                <p>The page you are looking for was not found.</p>
+            }
+            else if (statusCode == "403")
+            {
+                <p>You do not have permission to access this page.</p>
+            }
+        }
+        <a href="/" class="btn btn-primary">Go to Home</a>
+    </div>
+</div>
 
 @if (Model.ShowRequestId)
 {
