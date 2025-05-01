@@ -225,7 +225,13 @@
   </div>
 </div>
 
+<!-- Custom Loader Overlay (keep only one loader) -->
+<div id="global-loader-overlay">
+    <div class="global-loader-spinner"></div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="/js/loader.js"></script>
 <script>
     // Use toLocaleString to format UTC dates in browser's local time
     $(function () {
@@ -260,28 +266,35 @@
         $('#browserTimeDisplay').text(now.toLocaleString(undefined, options));
     });
 
-    // Add/Edit Event Modal AJAX logic
     $(document).ready(function () {
-        $('.add-event-btn').on('click', function (e) {
+        // Only show the custom loader when Edit Event is clicked
+        $(document).on('click', '.edit-event-btn', function (e) {
             e.preventDefault();
-            $('#event-modal-content').html('<div class="modal-body text-center py-5"><div class="spinner-border text-primary" role="status"></div></div>');
-            $.get('/Identity/EventCreate?handler=Partial', function (html) {
+            showLoader();
+            var eventId = $(this).data('event-id');
+            // Remove any inline/modal spinner (AJAX spinner)
+            $('#event-modal-content').empty();
+            $.get('/Identity/EventCreate?handler=Partial&eventId=' + eventId, function (html) {
                 $('#event-modal-content').html(html);
+                hideLoader();
             });
             $('#addEventModal').modal('show');
         });
-        $(document).on('click', '.edit-event-btn', function (e) {
+        // Add Event button logic (optional: keep loader for add event)
+        $('.add-event-btn').on('click', function (e) {
             e.preventDefault();
-            var eventId = $(this).data('event-id');
-            $('#event-modal-content').html('<div class="modal-body text-center py-5"><div class="spinner-border text-primary" role="status"></div></div>');
-            $.get('/Identity/EventCreate?handler=Partial&eventId=' + eventId, function (html) {
+            showLoader();
+            $('#event-modal-content').empty();
+            $.get('/Identity/EventCreate?handler=Partial', function (html) {
                 $('#event-modal-content').html(html);
+                hideLoader();
             });
             $('#addEventModal').modal('show');
         });
         // Delegate form submission for dynamically loaded content
         $(document).on('submit', '#eventCreateForm', function (e) {
             e.preventDefault();
+            showLoader();
             var form = $(this);
             var data = form.serialize();
             var eventId = form.find('[name="EventId"]').val();
@@ -294,6 +307,7 @@
                 } else {
                     $('#event-modal-content').html(result.html || result);
                 }
+                hideLoader();
             });
         });
     });
