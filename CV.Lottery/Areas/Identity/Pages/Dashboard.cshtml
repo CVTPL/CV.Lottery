@@ -302,12 +302,18 @@
             if (eventId) postUrl += '&eventId=' + eventId;
             $.post(postUrl, data, function (result) {
                 if (result.success) {
+                    // Hide modal first, then show loader until grid refresh
                     $('#addEventModal').modal('hide');
-                    location.reload();
+                    setTimeout(function() {
+                        showLoader();
+                        setTimeout(function() {
+                            location.reload();
+                        }, 400); // Give time for modal to close and loader to show
+                    }, 350); // Bootstrap modal fade duration
                 } else {
                     $('#event-modal-content').html(result.html || result);
+                    hideLoader();
                 }
-                hideLoader();
             });
         });
     });
