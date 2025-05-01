@@ -1,10 +1,13 @@
 using CV.Lottery.Context;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace CV.Lottery.Areas.Identity.Pages
@@ -15,12 +18,14 @@ namespace CV.Lottery.Areas.Identity.Pages
         public readonly UserManager<IdentityUser> _userManager;
         public readonly RoleManager<IdentityRole> _roleManager;
         private readonly LotteryContext _lotteryContext;
+        private readonly IEmailSender _emailSender;
 
-        public CreateAdminModel(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, LotteryContext lotteryContext)
+        public CreateAdminModel(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, LotteryContext lotteryContext, IEmailSender emailSender)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _lotteryContext = lotteryContext;
+            _emailSender = emailSender;
         }
 
         [BindProperty]
@@ -171,6 +176,29 @@ namespace CV.Lottery.Areas.Identity.Pages
                 ModelState.AddModelError(string.Empty, error.Description);
             }
             return Page();
+        }
+
+        public async Task<IActionResult> OnPostSendResetLinkAsync(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                TempData["ResetError"] = "Email is required.";
+                return RedirectToPage();
+            }
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+            {
+                TempData["ResetError"] = "User not found or email not confirmed.";
+                return RedirectToPage();
+            }
+            var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code)); // FIXED ENCODING
+            // Instead of sending email, redirect admin to the ResetPassword page with code and email in URL
+            return Redirect(Url.Page(
+                "/Account/ResetPassword",
+                pageHandler: null,
+                values: new { area = "Identity", code, email },
+                protocol: Request.Scheme));
         }
     }
 }

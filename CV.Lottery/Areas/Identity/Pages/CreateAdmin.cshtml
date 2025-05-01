@@ -72,9 +72,7 @@
             <tr>
                 <th>User Name</th>
                 <th>Email</th>
-              @*   <th>Role</th>
-                <th>Created On</th> *@
-                @* <th>Status</th> *@
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -82,39 +80,32 @@
             {
                 foreach (var user in Model.AllUsers)
                 {
-                   @*  var aspUser = Model._userManager.Users.FirstOrDefault(u => u.Id == user.UserId);
-                    var roles = aspUser != null ? string.Join(", ", Model._userManager.GetRolesAsync(aspUser).Result) : ""; *@
                     <tr>
                         <td class="text-break">@user.UserName</td>
                         <td class="text-break">@user.Email</td>
-                        @* <td>@roles</td> *@
-                      @*   <td>
-                            @if (user.CreatedOn.HasValue)
-                            {
-                                <span class="js-utc-date" data-utc="@user.CreatedOn.Value.ToString("yyyy-MM-ddTHH:mm:ssZ")"></span>
-                            }
-                            else
-                            {
-                                <span class="text-muted">-</span>
-                            }
-                        </td> *@
-                       @*  <td>
-                            @if (user.IsActive == true)
-                            {
-                                <span class="badge bg-success">Active</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">Inactive</span>
-                            }
-                        </td> *@
+                        <td class="text-break">
+                            <div class="dropdown">
+                                <button class="btn btn-link p-0 m-0 align-baseline" type="button" id="dropdownMenuButton-@user.Email" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-@user.Email">
+                                    <li>
+                                        <form method="post" asp-page-handler="SendResetLink" asp-route-email="@user.Email" style="display:inline">
+                                            <button type="submit" class="dropdown-item">
+                                                 Reset Password
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
                     </tr>
                 }
             }
             else
             {
                 <tr>
-                    <td colspan="5" class="text-center text-muted">No users found.</td>
+                    <td colspan="3" class="text-center text-muted">No users found.</td>
                 </tr>
             }
         </tbody>
