@@ -49,6 +49,14 @@ namespace CV.Lottery.Areas.Identity.Pages
         [BindProperty]
         public int SelectedEventId { get; set; }
 
+        [BindProperty(SupportsGet = true)]
+        public string SearchEventName { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public string SortColumn { get; set; }
+        [BindProperty(SupportsGet = true)]
+        public string SortDirection { get; set; } // "asc" or "desc"
+
         public class EventSummary
         {
             public string UserName { get; set; }
@@ -110,10 +118,53 @@ namespace CV.Lottery.Areas.Identity.Pages
             if (IsAdmin)
             {
                 // Fetch all LuckyDrawMaster events
-                var events = _lotteryContext.LuckyDrawMaster.OrderByDescending(e => e.EventDate).ToList();
+                var events = _lotteryContext.LuckyDrawMaster.ToList();
+
+                if (!string.IsNullOrEmpty(SearchEventName))
+                {
+                    events = events.Where(e => e.EventName.Contains(SearchEventName, StringComparison.OrdinalIgnoreCase)).ToList();
+                }
+
+                IEnumerable<LuckyDrawMaster> sortedEvents = events;
+                if (!string.IsNullOrEmpty(SortColumn))
+                {
+                    bool ascending = string.IsNullOrEmpty(SortDirection) || SortDirection.ToLower() == "asc";
+                    switch (SortColumn.ToLower())
+                    {
+                        case "eventname":
+                            sortedEvents = ascending
+                                ? events.OrderBy(e => e.EventName)
+                                : events.OrderByDescending(e => e.EventName);
+               
+                                break;
+                        case "eventdate":
+                            sortedEvents = ascending
+                                ? events.OrderBy(e => e.EventDate)
+                                : events.OrderByDescending(e => e.EventDate);
+                            break;
+                        case "amount":
+                            sortedEvents = ascending
+                                ? events.OrderBy(e => e.Amount)
+                                : events.OrderByDescending(e => e.Amount);
+                            break;
+                        case "isactive":
+                            sortedEvents = ascending
+                                ? events.OrderBy(e => e.IsActive)
+                                : events.OrderByDescending(e => e.IsActive);
+                            break;
+                        
+                        default:
+                            break;
+                    }
+                }
+                else
+                {
+                    sortedEvents = events.OrderByDescending(e => e.EventDate);
+                }
+
                 var winnersList = _lotteryContext.Winner.ToList();
                 var lotteryUsersList = _lotteryContext.LotteryUsers.ToList();
-                LuckyDrawEventsWithWinners = events.Select(e => {
+                LuckyDrawEventsWithWinners = sortedEvents.Select(e => {
                     var eventWinners = winnersList.Where(w => w.EventId == e.Id.ToString()).ToList();
                     var winnerNames = eventWinners
                         .Select(w => lotteryUsersList.FirstOrDefault(u => u.Id == w.UsersId)?.UserName)
@@ -128,7 +179,7 @@ namespace CV.Lottery.Areas.Identity.Pages
                 // Fetch the latest active LuckyDrawMaster event for event name/date
                 var luckyDraw = _lotteryContext.LuckyDrawMaster
                     .Where(e => e.IsActive == true)
-                    .OrderByDescending(e => e.EventDate)
+                    //.OrderByDescending(e => e.EventDate)
                     .FirstOrDefault();
                 if (luckyDraw != null)
                 {
@@ -157,7 +208,7 @@ namespace CV.Lottery.Areas.Identity.Pages
                     .Select(u => {
                         var payment = _lotteryContext.Payments
                             .Where(p => p.UsersId == u.Id)
-                            .OrderByDescending(p => p.CreatedOn)
+                            //.OrderByDescending(p => p.CreatedOn)
                             .FirstOrDefault();
                         return new {
                             User = u,
@@ -180,7 +231,7 @@ namespace CV.Lottery.Areas.Identity.Pages
                         Email = x.User.Email, // Added for PaymentDetails grid
                         PhoneNumber = x.User.Mobile // Use Mobile for phone number
                     })
-                    .OrderByDescending(e => e.UserId)
+                    //.OrderByDescending(e => e.UserId)
                     .ToList();
 
                 // Calculate tile values
@@ -188,8 +239,8 @@ namespace CV.Lottery.Areas.Identity.Pages
                 TotalNotPaidUsers = allEvents.Count(e => e.PaymentStatus == "Not Paid" || e.PaymentStatus == "Failed" || e.PaymentStatus == "Pending");
                 TotalUsers = TotalPaidUsers + TotalNotPaidUsers;
 
+                int PageSize = 10;
                 PageNumber = pageNumber;
-                PageSize = 10;
                 TotalPages = (int)Math.Ceiling(allEvents.Count / (double)PageSize);
                 AllEvents = allEvents.Skip((PageNumber - 1) * PageSize).Take(PageSize).ToList();
             }
@@ -201,13 +252,13 @@ namespace CV.Lottery.Areas.Identity.Pages
                 // Fetch the latest active LuckyDrawMaster event
                 var luckyDraw = _lotteryContext.LuckyDrawMaster
                     .Where(e => e.IsActive == true)
-                    .OrderByDescending(e => e.EventDate)
+                    //.OrderByDescending(e => e.EventDate)
                     .FirstOrDefault();
                 if (lotteryUser != null)
                 {
                     var payment = _lotteryContext.Payments
                         .Where(p => p.UsersId == lotteryUser.Id)
-                        .OrderByDescending(p => p.CreatedOn)
+                        //.OrderByDescending(p => p.CreatedOn)
                         .AsEnumerable()
                         .FirstOrDefault();
 

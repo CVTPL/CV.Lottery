@@ -64,43 +64,91 @@ namespace CV.Lottery.Areas.Identity.Pages.Account
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        //public async Task<IActionResult> OnPostAsync()
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return Page();
+        //    }
+        //    var user = await _userManager.FindByEmailAsync(Input.Email);
+
+        //    // Clear session
+        //    HttpContext.Session.Clear();
+
+        //    // Sign out user (clears authentication cookies)
+        //    await _signInManager.SignOutAsync();
+
+        //    foreach (var cookie in Request.Cookies.Keys)
+        //    {
+        //        Response.Cookies.Delete(cookie);
+        //    }
+
+        //    if (user == null)
+        //    {
+        //        // Don't reveal that the user does not exist
+        //        StatusMessage = "Password reset successful.";
+        //        return RedirectToPage("/Account/Login");
+        //    }
+        //    var decodedCode = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(Input.Code));
+        //    var result = await _userManager.ResetPasswordAsync(user, decodedCode, Input.Password);
+        //    if (result.Succeeded)
+        //    {
+        //        StatusMessage = "Password reset successful.";
+        //        return RedirectToPage("/Account/Login");
+        //    }
+        //    foreach (var error in result.Errors)
+        //    {
+        //        ModelState.AddModelError(string.Empty, error.Description);
+        //    }
+        //    return Page();
+        //}
+
+        public async Task<IActionResult> OnPostAsync(string source = null)
         {
             if (!ModelState.IsValid)
             {
                 return Page();
             }
+
             var user = await _userManager.FindByEmailAsync(Input.Email);
 
-            // Clear session
-            HttpContext.Session.Clear();
-
-            // Sign out user (clears authentication cookies)
-            await _signInManager.SignOutAsync();
-
-            foreach (var cookie in Request.Cookies.Keys)
+            // Clear session and log out only if coming from the login page
+            if (source == "/Account/Login")
             {
-                Response.Cookies.Delete(cookie);
+                HttpContext.Session.Clear();
+                await _signInManager.SignOutAsync();
+
+                foreach (var cookie in Request.Cookies.Keys)
+                {
+                    Response.Cookies.Delete(cookie);
+                }
             }
 
             if (user == null)
             {
-                // Don't reveal that the user does not exist
                 StatusMessage = "Password reset successful.";
-                return RedirectToPage("/Account/Login");
+                TempData["ToastMessage"] = "Password reset successful.";
+                return source == "admin" ? RedirectToPage("/createadmin") : RedirectToPage("/Account/Login");
             }
+
             var decodedCode = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(Input.Code));
             var result = await _userManager.ResetPasswordAsync(user, decodedCode, Input.Password);
+
             if (result.Succeeded)
             {
                 StatusMessage = "Password reset successful.";
-                return RedirectToPage("/Account/Login");
+                TempData["ToastMessage"] = "Your password has been reset successfully!";
+                return source != "admin" ? RedirectToPage("/createadmin") : RedirectToPage("/Account/Login");
             }
+
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError(string.Empty, error.Description);
             }
+
             return Page();
         }
+
+
     }
 }

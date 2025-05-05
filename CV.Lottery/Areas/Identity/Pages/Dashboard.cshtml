@@ -14,7 +14,16 @@
 }
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<style type="text/css">
+    .active > .page-link, .page-link.active {
+        background-color: #051145;
+        border-color: #051145;
+    }
 
+    .page-link {
+        color: #051145;
+    }
+</style>
 @functions {
     public bool IsAdmin => Model.IsAdmin;
     public List<CV.Lottery.Areas.Identity.Pages.DashboardModel.EventSummary> AllEvents => Model.AllEvents;
@@ -28,27 +37,89 @@
                 <div class="col-12 p-0">
                     <div class="mb-0">
                         <!-- Admin dashboard: Header and Tiles only, grid removed as requested -->
-                        <div class="row g-2 align-items-center mb-4">
+                        <div class="row g-2 align-items-center">
                             <div class="col-12 col-lg-6 d-flex align-items-center gap-3 mb-2 mb-lg-0">
                                 <h3 class="fw-bold mb-0">Dashboard</h3>
                             </div>
+                            
                             <div class="col-12 col-lg-6 d-flex justify-content-lg-end gap-2">
                                 <a href="#" class="btn btn-primary d-inline-flex align-items-center px-4 py-2 shadow-sm add-event-btn" data-bs-toggle="modal" data-bs-target="#addEventModal" style="border-radius: 12px; font-weight: 600; font-size: 1.05rem;">
                                     <i class="bi bi-calendar-plus me-2"></i> <span class="d-inline">Add Event</span>
                                 </a>
                             </div>
+                            
+                        </div>
+                        <div class="col-auto ms-auto">
+                            @if (User.IsInRole("admin"))
+                            {
+                                <form method="get" class="d-flex justify-content-end" style="max-width: 350px; gap: 0.5rem;margin-top: 6px;" id="payment-details-search-form" data-loader="true">
+                                    <div class="input-group">
+                                        <input type="text" asp-for="SearchEventName" class="form-control" placeholder="Search by event name" />
+                                        <button type="submit" class="btn btn-primary" id="searchBtn">Search</button>
+                                    </div>
+                                    <a href="@Url.Page(null)" class="btn btn-primary">Clear</a>
+                                </form>
+                            }
                         </div>
                         <!-- Admin LuckyDrawMaster Grid -->
-                        <div class="card shadow-lg rounded-4 border-0 mb-4">
+                        <div class="card shadow-lg rounded-4 border-0 mt-3 mb-4">
                             <div class="card-body p-3">
                                 <div class="table-responsive">
                                     <table class="table table-hover align-middle mb-0">
                                         <thead class="table-light">
-                                            <tr>
+                                            @* <tr>
                                                 <th>Event Name</th>
                                                 <th>Event Date</th>
                                                 <th>Amount</th>
                                                 <th>Status</th>
+                                                <th>Winner Name</th>
+                                                <th>Actions</th>
+                                            </tr> *@
+                                            <tr>
+                                                <th>
+                                                    <a asp-page="Dashboard" asp-route-sortColumn="EventName"
+                                                       asp-route-sortDirection="@(Model.SortColumn == "EventName" && Model.SortDirection == "asc" ? "desc" : "asc")"
+                                                       style="color: #000; text-decoration: none;">
+                                                        Event Name
+                                                        @if (Model.SortColumn == "EventName")
+                                                        {
+                                                            <span class="@(Model.SortDirection == "asc" ? "bi bi-caret-up-fill" : "bi bi-caret-down-fill")"></span>
+                                                        }
+                                                    </a>
+                                                </th>
+                                                <th>
+                                                    <a asp-page="Dashboard"
+                                                       asp-route-sortColumn="EventDate"
+                                                       asp-route-sortDirection="@(Model.SortColumn == "EventDate" && Model.SortDirection == "asc" ? "desc" : "asc")"
+                                                       style="color: #000;text-decoration: none;">
+                                                        Event Date @if (Model.SortColumn == "EventDate")
+                                                        {
+                                                            <span class="@(Model.SortDirection == "asc" ? "bi bi-caret-up-fill" : "bi bi-caret-down-fill")"></span>
+                                                        }
+                                                    </a>
+                                                </th>
+                                                <th>
+                                                    <a asp-page="Dashboard"
+                                                       asp-route-sortColumn="Amount"
+                                                       asp-route-sortDirection="@(Model.SortColumn == "Amount" && Model.SortDirection == "asc" ? "desc" : "asc")"
+                                                       style="color: #000;text-decoration: none;">
+                                                        Amount @if (Model.SortColumn == "Amount")
+                                                        {
+                                                            <span class="@(Model.SortDirection == "asc" ? "bi bi-caret-up-fill" : "bi bi-caret-down-fill")"></span>
+                                                        }
+                                                    </a>
+                                                </th>
+                                                <th>
+                                                    <a asp-page="Dashboard"
+                                                       asp-route-sortColumn="IsActive"
+                                                       asp-route-sortDirection="@(Model.SortColumn == "IsActive" && Model.SortDirection == "asc" ? "desc" : "asc")"
+                                                       style="color: #000; text-decoration: none;">
+                                                        Status @if (Model.SortColumn == "IsActive")
+                                                        {
+                                                            <span class="@(Model.SortDirection == "asc" ? "bi bi-caret-up-fill" : "bi bi-caret-down-fill")"></span>
+                                                        }
+                                                    </a>
+                                                </th>
                                                 <th>Winner Name</th>
                                                 <th>Actions</th>
                                             </tr>
@@ -95,6 +166,27 @@
                                             }
                                         </tbody>
                                     </table>
+                                </div>
+                                <div class="w-100 mt-3 d-flex justify-content-center">
+                                    @if (totalPages > 1 && allEvents.Count > pageSize)
+                                    {
+                                        <nav aria-label="Admin pagination" class="mb-2">
+                                            <ul class="pagination justify-content-center flex-nowrap my-1" style="min-width: 340px;">
+                                                <li class="page-item @(pageNumber == 1 ? "disabled" : "")">
+                                                    <a class="page-link" href="?pageNumber=@(pageNumber - 1)" tabindex="-1">Previous</a>
+                                                </li>
+                                                @for (int i = 1; i <= totalPages; i++)
+                                                {
+                                                    <li class="page-item @(i == pageNumber ? "active" : "")">
+                                                        <a class="page-link" href="?pageNumber=@i">@i</a>
+                                                    </li>
+                                                }
+                                                <li class="page-item @(pageNumber == totalPages ? "disabled" : "")">
+                                                    <a class="page-link" href="?pageNumber=@(pageNumber + 1)">Next</a>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    }
                                 </div>
                             </div>
                         </div>

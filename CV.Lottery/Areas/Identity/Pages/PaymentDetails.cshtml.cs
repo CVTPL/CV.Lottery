@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CV.Lottery.Context;
+using CV.Lottery.Models;
+using Microsoft.IdentityModel.Tokens;
 
 namespace CV.Lottery.Areas.Identity.Pages
 {
@@ -34,24 +36,63 @@ namespace CV.Lottery.Areas.Identity.Pages
         public string SearchUserName { get; set; }
 
         [BindProperty(SupportsGet = true)]
+        public int SelectedEvent { get; set; }
+
+        [BindProperty(SupportsGet = true)]
         public string SortColumn { get; set; }
         [BindProperty(SupportsGet = true)]
         public string SortDirection { get; set; } // "asc" or "desc"
 
+        public List<LuckyDrawMaster> EventList { get; set; }
+
         public async Task<IActionResult> OnGetAsync(int pageNumber = 1)
         {
-            // Removed manual authentication check to allow [Authorize] and Identity middleware to handle redirects
+            //EventList = _lotteryContext.LuckyDrawMaster
+            //                .OrderByDescending(e => e.EventDate)
+            //                .ToList();
 
-            // Fetch the latest active LuckyDrawMaster event for event name/date
-            var luckyDraw = _lotteryContext.LuckyDrawMaster
-                .FirstOrDefault(e => e.IsActive == true && e.EventDate >= DateTime.UtcNow.Date);
-            string eventName = luckyDraw?.EventName ?? "No Active Event";
-            DateTime? winnerAnnouncementDate = luckyDraw?.EventDate;
+            //// Removed manual authentication check to allow [Authorize] and Identity middleware to handle redirects
 
-            // Fetch only users who have payments for the active event
-            var activeEventId = luckyDraw?.Id;
+            //// Fetch the latest active LuckyDrawMaster event for event name/date
+            //var luckyDraw = SelectedEvent == 0
+            //        ? _lotteryContext.LuckyDrawMaster
+            //            .FirstOrDefault(e => e.EventDate >= DateTime.UtcNow.Date)
+            //        : _lotteryContext.LuckyDrawMaster
+            //            .FirstOrDefault(e => e.Id == SelectedEvent);
+
+            //string eventName = luckyDraw?.EventName ?? "No Active Event";
+            //DateTime? winnerAnnouncementDate = luckyDraw?.EventDate;
+
+            //// Fetch only users who have payments for the active event
+            //var activeEventId = luckyDraw?.Id;
+            //var usersWithUserRole = _lotteryContext.LotteryUsers
+            //    .Where(u => _lotteryContext.Payments.Any(p => p.UsersId == u.Id && p.EventId == activeEventId))
+            //    .ToList();
+
+            EventList = _lotteryContext.LuckyDrawMaster
+                    .OrderByDescending(e => e.EventDate)
+                    .ToList();
+
+            // Get selected event or latest one
+            LuckyDrawMaster? luckyDraw = null;
+
+            if (SelectedEvent != 0)
+            {
+                luckyDraw = _lotteryContext.LuckyDrawMaster.FirstOrDefault(e => e.Id == SelectedEvent);
+            }
+            else
+            {
+                luckyDraw = _lotteryContext.LuckyDrawMaster
+                    .OrderByDescending(e => e.EventDate)
+                    .FirstOrDefault();
+            }
+
+            int? selectedEventId = SelectedEvent != 0 ? SelectedEvent : (int?)null;
+
+            // Get users with payments for the selected event or all if no selection
             var usersWithUserRole = _lotteryContext.LotteryUsers
-                .Where(u => _lotteryContext.Payments.Any(p => p.UsersId == u.Id && p.EventId == activeEventId))
+                .Where(u => _lotteryContext.Payments.Any(p =>
+                    p.UsersId == u.Id && (selectedEventId == null || p.EventId == selectedEventId)))
                 .ToList();
 
             // Search filter for admin
@@ -88,7 +129,7 @@ namespace CV.Lottery.Areas.Identity.Pages
             var users = usersWithUserRole
                 .Select(u => {
                     var latestPayment = _lotteryContext.Payments
-                        .Where(p => p.UsersId == u.Id && p.EventId == activeEventId)
+                        .Where(p => p.UsersId == u.Id && (selectedEventId == null || p.EventId == selectedEventId))
                         .OrderByDescending(p => p.CreatedOn)
                         .FirstOrDefault();
                     return new DashboardModel.EventSummary

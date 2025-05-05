@@ -29,17 +29,26 @@
                     <div class="row g-2 mb-3 align-items-center">
                         <div class="col text-center text-sm-start mb-2 mb-sm-0">
                             <h3 class="fw-bold mb-0">Payment Details</h3>
-                            <div class="small mt-1">
+                            @* <div class="small mt-1">
                                 <span class="fw-semibold">Event Name:</span> <span class="text-primary" style="max-width:220px; white-space:normal; word-break:break-word;">@allEvents.FirstOrDefault()?.EventName</span><br />
                                 <span class="fw-semibold">Winner Announcement:</span> <span class="text-success js-utc-date" data-utc="@allEvents.FirstOrDefault()?.WinnerAnnouncementDate.ToString("yyyy-MM-ddTHH:mm:ssZ")"></span>
-                            </div>
+                            </div> *@
                             <div class="col-auto ms-auto">
                                 @if (User.IsInRole("admin"))
                                 {
-                                    <form method="get" class="d-flex justify-content-end" style="max-width: 350px; gap: 0.5rem;margin-top: 6px;" id="payment-details-search-form" data-loader="true">
+                                    <form method="get" class="d-flex justify-content-end" style="max-width: 550px; gap: 0.5rem;margin-top: 6px;" id="payment-details-search-form" data-loader="true">
+                                        <select name="SelectedEvent" class="form-control mr-2" style="width: 350px;">
+                                            <option value="">All Events</option>
+                                            @foreach (var eventItem in Model.EventList)
+                                            {
+                                                <option value="@eventItem.Id" selected="@(eventItem.Id == Model.SelectedEvent ? "selected" : null)">
+                                                    @eventItem.EventName
+                                                </option>
+                                            }
+                                        </select>
                                         <div class="input-group">
                                             <input type="text" name="SearchUserName" class="form-control" placeholder="Search by username..." value="@Model.SearchUserName" id="searchUserNameInput" />
-                                            <button type="submit" class="btn btn-primary" id="searchBtn" disabled>Search</button>
+                                            <button type="submit" class="btn btn-primary" id="searchBtn">Search</button>
                                         </div>
                                         <a href="@Url.Page(null)" class="btn btn-primary">Clear</a>
                                     </form>
@@ -60,7 +69,7 @@
                                     <th>
                                         <a asp-page="PaymentDetails" asp-route-SortColumn="UserName" 
                                         asp-route-SortDirection="@(Model.SortColumn == "UserName" && Model.SortDirection == "asc" ? "desc" : "asc")"
-                                           asp-route-SearchUserName="@Model.SearchUserName" style="color: #051145;">
+                                           asp-route-SearchUserName="@Model.SearchUserName" style="color: #051145; text-decoration: none;">
                                             User Name
                                             @if (Model.SortColumn == "UserName") {
                                                 <span class="@(Model.SortDirection == "asc" ? "bi bi-caret-up-fill" : "bi bi-caret-down-fill")"></span>
@@ -70,7 +79,7 @@
                                     <th>
                                         <a asp-page="PaymentDetails" asp-route-SortColumn="Email" 
                                         asp-route-SortDirection="@(Model.SortColumn == "Email" && Model.SortDirection == "asc" ? "desc" : "asc")"
-                                           asp-route-SearchUserName="@Model.SearchUserName" style="color: #051145;">
+                                           asp-route-SearchUserName="@Model.SearchUserName" style="color: #051145; text-decoration: none;">
                                             Email
                                             @if (Model.SortColumn == "Email") {
                                                 <span class="@(Model.SortDirection == "asc" ? "bi bi-caret-up-fill" : "bi bi-caret-down-fill")"></span>
@@ -80,7 +89,7 @@
                                     <th>
                                         <a asp-page="PaymentDetails" asp-route-SortColumn="PhoneNumber"
                                            asp-route-SortDirection="@(Model.SortColumn == "PhoneNumber" && Model.SortDirection == "asc" ? "desc" : "asc")"
-                                           asp-route-SearchUserName="@Model.SearchUserName" style="color: #051145;">
+                                           asp-route-SearchUserName="@Model.SearchUserName" style="color: #051145; text-decoration: none;">
                                             Phone Number
                                             @if (Model.SortColumn == "PhoneNumber") {
                                                 <span class="@(Model.SortDirection == "asc" ? "bi bi-caret-up-fill" : "bi bi-caret-down-fill")"></span>
@@ -90,7 +99,7 @@
                                     <th>
                                         <a asp-page="PaymentDetails" asp-route-SortColumn="Amount" 
                                         asp-route-SortDirection="@(Model.SortColumn == "Amount" && Model.SortDirection == "asc" ? "desc" : "asc")"
-                                           asp-route-SearchUserName="@Model.SearchUserName" style="color: #051145;">
+                                           asp-route-SearchUserName="@Model.SearchUserName" style="color: #051145; text-decoration: none;">
                                             Amount ($)
                                             @if (Model.SortColumn == "Amount") {
                                                 <span class="@(Model.SortDirection == "asc" ? "bi bi-caret-up-fill" : "bi bi-caret-down-fill")"></span>
@@ -111,7 +120,7 @@
                                     <th>
                                         <a asp-page="PaymentDetails" asp-route-SortColumn="PaidOn" 
                                         asp-route-SortDirection="@(Model.SortColumn == "PaidOn" && Model.SortDirection == "asc" ? "desc" : "asc")"
-                                           asp-route-SearchUserName="@Model.SearchUserName" style="color: #051145;">
+                                           asp-route-SearchUserName="@Model.SearchUserName" style="color: #051145; text-decoration: none;">
                                             Paid On
                                             @if (Model.SortColumn == "PaidOn") {
                                                 <span class="@(Model.SortDirection == "asc" ? "bi bi-caret-up-fill" : "bi bi-caret-down-fill")"></span>
@@ -193,12 +202,12 @@
 <script>
     $(function () {
         // Enable/disable search button based on input value
-        function toggleSearchBtn() {
-            var val = $('#searchUserNameInput').val();
-            $('#searchBtn').prop('disabled', !val.trim());
-        }
-        $('#searchUserNameInput').on('input', toggleSearchBtn);
-        toggleSearchBtn(); // Set initial state
+        // function toggleSearchBtn() {
+        //     var val = $('#searchUserNameInput').val();
+        //     $('#searchBtn').prop('disabled', !val.trim());
+        // }
+        // $('#searchUserNameInput').on('input', toggleSearchBtn);
+        // toggleSearchBtn(); // Set initial state
 
         $('.js-utc-date').each(function () {
             var utc = $(this).data('utc');
